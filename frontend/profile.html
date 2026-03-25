@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .profile-avatar-big {
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        .profile-sidebar {
+            text-align: center;
+        }
+
+        .profile-sidebar h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-sidebar p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-sidebar .badge {
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .profile-stat {
+            background-color: var(--gray-100);
+            border-radius: var(--radius);
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        .profile-stat .number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .profile-stat .label {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        .seller-upgrade {
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .seller-upgrade p {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <p>Manage your account details</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="profile-layout">
+
+            <!-- SIDEBAR -->
+            <div>
+                <div class="card profile-sidebar">
+                    <div class="profile-avatar-big" id="profile-avatar">?</div>
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-email">Loading...</p>
+                    <p id="profile-matric">Loading...</p>
+                    <span class="badge badge-primary" id="profile-role">user</span>
+
+                    <div class="profile-stats" id="profile-stats"></div>
+
+                    <div class="seller-upgrade" id="upgrade-section" style="display: none">
+                        <p>Upgrade your account to start listing products and services!</p>
+                        <button class="btn btn-primary" onclick="becomeSeller()">Become a Seller</button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1rem">
+                    <h3 style="margin-bottom: 1rem">Account Info</h3>
+                    <p style="font-size: 0.9rem; color: var(--gray-600); margin-bottom: 0.5rem">
+                        <strong>Member since:</strong> <span id="member-since">-</span>
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--gray-600)">
+                        <strong>Account status:</strong> <span class="badge badge-success">Active</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div>
+                <div class="card">
+                    <h3 style="margin-bottom: 1.5rem">Edit Profile</h3>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="edit-name" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="edit-email" placeholder="Your email">
+                    </div>
+                    <div class="form-group">
+                        <label>Matric Number</label>
+                        <input type="text" id="edit-matric" placeholder="Your matric number">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+                </div>
+
+                <div class="card" id="my-listings-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem">
+                        <h3>My Listings</h3>
+                        <a href="create-listing.html" class="btn btn-primary">+ New Listing</a>
+                    </div>
+                    <div id="my-listings">
+                        <p style="color: var(--gray-600)">Loading listings...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        async function loadProfile() {
+            try {
+                const user = await apiRequest("/users/me", "GET", null, true);
+                const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
+
+                // Sidebar
+                document.getElementById("profile-avatar").textContent = user.full_name.charAt(0).toUpperCase();
+                document.getElementById("profile-name").textContent = user.full_name;
+                document.getElementById("profile-email").textContent = user.email;
+                document.getElementById("profile-matric").textContent = user.matric_number;
+                document.getElementById("profile-role").textContent = user.role.replace("_", " ");
+                document.getElementById("member-since").textContent = formatDate(user.created_at);
+
+                // Role badge color
+                const roleBadge = document.getElementById("profile-role");
+                if (user.role === "verified_seller") {
+                    roleBadge.className = "badge badge-success";
+                    roleBadge.textContent = "✅ Verified Seller";
+                } else if (user.role === "admin") {
+                    roleBadge.className = "badge badge-warning";
+                    roleBadge.textContent = "⚙️ Admin";
+                }
+
+                // Stats
+                document.getElementById("profile-stats").innerHTML = `
+                    <div class="profile-stat">
+                        <div class="number">${analytics.total_listings}</div>
+                        <div class="label">Listings</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="number">${analytics.total_reviews}</div>
+                        <div class="label">Reviews</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="number">${analytics.average_rating}⭐</div>
+                        <div class="label">Avg Rating</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="number">${formatCurrency(analytics.total_earnings)}</div>
+                        <div class="label">Earnings</div>
+                    </div>
+                `;
+
+                // Show upgrade button if basic user
+                if (user.role === "user") {
+                    document.getElementById("upgrade-section").style.display = "block";
+                }
+
+                // Fill edit form
+                document.getElementById("edit-name").value = user.full_name;
+                document.getElementById("edit-email").value = user.email;
+                document.getElementById("edit-matric").value = user.matric_number;
+
+                // Load listings
+                loadMyListings();
+
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function loadMyListings() {
+            try {
+                const listings = await apiRequest("/listings/", "GET");
+                const user = getUser();
+                const myListings = listings.filter(l => l.owner_id === user.id);
+
+                const container = document.getElementById("my-listings");
+
+                if (myListings.length === 0) {
+                    container.innerHTML = `<p style="color: var(--gray-600)">You have no listings yet. <a href="create-listing.html">Create one!</a></p>`;
+                    return;
+                }
+
+                container.innerHTML = myListings.map(l => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--gray-200)">
+                        <div>
+                            <p style="font-weight: 600">${l.title}</p>
+                            <p style="font-size: 0.85rem; color: var(--gray-600)">${formatCurrency(l.price)} · ${l.category}</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center">
+                            <span class="badge ${l.is_available ? "badge-success" : "badge-warning"}">${l.is_available ? "Active" : "Inactive"}</span>
+                            <button class="btn btn-danger" style="padding: 0.3rem 0.8rem; font-size: 0.8rem" onclick="deleteListing(${l.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join("");
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function updateProfile() {
+            const full_name = document.getElementById("edit-name").value.trim();
+            const email = document.getElementById("edit-email").value.trim();
+            const matric_number = document.getElementById("edit-matric").value.trim();
+
+            if (!full_name || !email || !matric_number) {
+                showAlert("Please fill in all fields", "danger");
+                return;
+            }
+
+            try {
+                await apiRequest("/users/me", "PUT", { full_name, email, matric_number }, true);
+                showAlert("Profile updated successfully!", "success");
+                loadProfile();
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function becomeSeller() {
+            try {
+                await apiRequest("/users/me/become-seller", "PUT", null, true);
+                showAlert("You are now a seller! 🎉", "success");
+                loadProfile();
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function deleteListing(listingId) {
+            if (!confirm("Are you sure you want to delete this listing?")) return;
+            try {
+                await apiRequest(`/listings/${listingId}`, "DELETE", null, true);
+                showAlert("Listing deleted!", "success");
+                loadMyListings();
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

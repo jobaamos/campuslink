@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+        }
+
+        .welcome-banner h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .welcome-banner p {
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: var(--gray-800);
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            color: var(--primary);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .action-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .action-card p {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .profile-info h3 {
+            font-size: 1.1rem;
+        }
+
+        .profile-info p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+
+        <!-- WELCOME BANNER -->
+        <div class="welcome-banner">
+            <h2 id="welcome-text">Welcome back! 👋</h2>
+            <p id="role-text">Loading your profile...</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="stat-listings">-</div>
+                <div class="stat-label">My Listings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-earnings">-</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-reviews">-</div>
+                <div class="stat-label">Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-rating">-</div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="listings.html" class="action-card">
+                    <div class="action-icon">🛍️</div>
+                    <h4>Browse Listings</h4>
+                    <p>Explore products and services</p>
+                </a>
+                <a href="create-listing.html" class="action-card">
+                    <div class="action-icon">➕</div>
+                    <h4>Create Listing</h4>
+                    <p>List a product or service</p>
+                </a>
+                <a href="my-listings.html" class="action-card">
+                    <div class="action-icon">📋</div>
+                    <h4>My Listings</h4>
+                    <p>Manage your listings</p>
+                </a>
+                <a href="jobs.html" class="action-card">
+                    <div class="action-icon">💼</div>
+                    <h4>Browse Jobs</h4>
+                    <p>Find jobs on campus</p>
+                </a>
+                <a href="messages.html" class="action-card">
+                    <div class="action-icon">💬</div>
+                    <h4>Messages</h4>
+                    <p>Check your inbox</p>
+                </a>
+                <a href="analytics.html" class="action-card">
+                    <div class="action-icon">📊</div>
+                    <h4>Analytics</h4>
+                    <p>View your performance</p>
+                </a>
+                <a href="profile.html" class="action-card">
+                    <div class="action-icon">👤</div>
+                    <h4>My Profile</h4>
+                    <p>Update your details</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- PROFILE CARD -->
+        <div class="card">
+            <div class="profile-card">
+                <div class="profile-avatar" id="profile-avatar">?</div>
+                <div class="profile-info">
+                    <h3 id="profile-name">Loading...</h3>
+                    <p id="profile-email">Loading...</p>
+                    <span class="badge badge-primary" id="profile-role">user</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        async function loadDashboard() {
+            try {
+                const user = await apiRequest("/users/me", "GET", null, true);
+                setUser(user);
+
+                // Welcome banner
+                document.getElementById("welcome-text").textContent = `Welcome back, ${user.full_name}! 👋`;
+                document.getElementById("role-text").textContent = `You are logged in as a ${user.role.replace("_", " ")}`;
+
+                // Profile card
+                document.getElementById("profile-avatar").textContent = user.full_name.charAt(0).toUpperCase();
+                document.getElementById("profile-name").textContent = user.full_name;
+                document.getElementById("profile-email").textContent = user.email;
+                document.getElementById("profile-role").textContent = user.role.replace("_", " ");
+
+                // Analytics
+                const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
+                document.getElementById("stat-listings").textContent = analytics.total_listings;
+                document.getElementById("stat-earnings").textContent = formatCurrency(analytics.total_earnings);
+                document.getElementById("stat-reviews").textContent = analytics.total_reviews;
+                document.getElementById("stat-rating").textContent = analytics.average_rating + " ⭐";
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

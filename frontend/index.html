@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLink - Campus Digital Marketplace</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-white {
+            background-color: var(--white);
+            color: var(--primary);
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-white:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-outline-white {
+            background-color: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-white:hover {
+            background-color: var(--white);
+            color: var(--primary);
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 4rem 2rem;
+            background-color: var(--white);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .features .subtitle {
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: var(--radius);
+            background-color: var(--gray-100);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .feature-card p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 4rem 2rem;
+            background-color: var(--gray-100);
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .how-it-works .subtitle {
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--gray-800);
+            color: var(--white);
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="login.html">Login</a>
+            <a href="register.html" class="btn btn-primary">Get Started</a>
+        </nav>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Your Campus Marketplace</h1>
+        <p>Buy, sell, and offer services within your university community. Connect with fellow students and grow your campus business.</p>
+        <div class="hero-buttons">
+            <a href="register.html" class="btn-white">Get Started</a>
+            <a href="listings.html" class="btn-outline-white">Browse Listings</a>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features">
+        <div class="container">
+            <h2>Everything You Need</h2>
+            <p class="subtitle">A complete marketplace built for students, by students</p>
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🛍️</div>
+                    <h3>Buy & Sell Products</h3>
+                    <p>List your products and reach hundreds of students on campus instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Offer Services</h3>
+                    <p>Monetize your skills — tutoring, design, writing, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h3>Post Jobs</h3>
+                    <p>Need help with a task? Post a job and hire from your campus community.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>Verified Sellers</h3>
+                    <p>Trust matters. Our verified badge system ensures quality and credibility.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Direct Messaging</h3>
+                    <p>Chat directly with sellers and buyers through our structured inbox.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Seller Analytics</h3>
+                    <p>Track your earnings, reviews, and performance from your dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p class="subtitle">Get started in just a few steps</p>
+            <div class="grid-3">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Create an Account</h3>
+                    <p>Sign up with your university email and matric number.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Become a Seller</h3>
+                    <p>Upgrade your account to start listing products and services.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Start Earning</h3>
+                    <p>Receive payments, get reviews, and grow your campus business.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Ready to Get Started?</h2>
+        <p>Join hundreds of students already using CampusLink</p>
+        <a href="register.html" class="btn-white">Create Your Account</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2024 CampusLink — Crawford University. Built by Joba Amos Barnabas.</p>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

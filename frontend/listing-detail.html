@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing Detail - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .listing-detail {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .listing-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .listing-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .listing-description {
+            color: var(--gray-600);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-card {
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-card:last-child {
+            border-bottom: none;
+        }
+
+        .review-rating {
+            color: var(--warning);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .review-comment {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .review-date {
+            color: var(--gray-400);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .listing-detail {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div id="alert-container"></div>
+
+        <div class="listing-detail" id="listing-detail">
+            <p>Loading listing...</p>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        const params = new URLSearchParams(window.location.search);
+        const listingId = params.get("id");
+
+        async function loadListing() {
+            try {
+                const listing = await apiRequest(`/listings/${listingId}`, "GET");
+                const reviews = await apiRequest(`/reviews/${listingId}`, "GET");
+                const user = getUser();
+
+                document.getElementById("listing-detail").innerHTML = `
+                    <div>
+                        <div class="card">
+                            <h1 style="margin-bottom: 1rem">${listing.title}</h1>
+                            <div class="listing-badges">
+                                <span class="badge badge-primary">${listing.category}</span>
+                                <span class="badge badge-success">${listing.listing_type}</span>
+                            </div>
+                            <div class="listing-price">₦${Number(listing.price).toLocaleString()}</div>
+                            <p class="listing-description">${listing.description}</p>
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem">
+    <p style="color: var(--gray-600); font-size: 0.9rem">Posted by <strong>${listing.owner_name || "Unknown"}</strong></p>
+    ${listing.owner_role === "verified_seller" ? '<span class="badge badge-success">✅ Verified Seller</span>' : ""}
+</div>
+<p style="color: var(--gray-600); font-size: 0.9rem">Posted on ${formatDate(listing.created_at)}</p>
+                        </div>
+
+                        <!-- REVIEWS -->
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem">Reviews (${reviews.length})</h3>
+                            ${reviews.length === 0 ? '<p style="color: var(--gray-600)">No reviews yet.</p>' :
+                                reviews.map(r => `
+                                    <div class="review-card">
+                                        <div class="review-rating">${"⭐".repeat(r.rating)}</div>
+                                        <p class="review-comment">${r.comment}</p>
+                                        <p class="review-date">${formatDate(r.created_at)}</p>
+                                    </div>
+                                `).join("")
+                            }
+
+                            ${user && user.id !== listing.owner_id ? `
+                                <hr style="margin: 1rem 0">
+                                <h4 style="margin-bottom: 1rem">Leave a Review</h4>
+                                <div class="form-group">
+                                    <label>Rating</label>
+                                    <select id="rating">
+                                        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                                        <option value="4">⭐⭐⭐⭐ Good</option>
+                                        <option value="3">⭐⭐⭐ Average</option>
+                                        <option value="2">⭐⭐ Poor</option>
+                                        <option value="1">⭐ Terrible</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea id="comment" rows="3" placeholder="Write your review..."></textarea>
+                                </div>
+                                <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+                            ` : ""}
+                        </div>
+                    </div>
+
+                    <!-- SIDEBAR -->
+                    <div>
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem">Interested?</h3>
+                            ${user && user.id !== listing.owner_id ? `
+                                <button class="btn btn-primary" style="width:100%; margin-bottom: 1rem" onclick="makePayment(${listing.id})">
+                                    💳 Pay ₦${Number(listing.price).toLocaleString()}
+                                </button>
+                                <button class="btn btn-outline" style="width:100%" onclick="messageOwner(${listing.owner_id})">
+                                    💬 Message Seller
+                                </button>
+                            ` : '<p style="color: var(--gray-600)">This is your listing.</p>'}
+                        </div>
+
+                        <div class="card">
+                            <h3 style="margin-bottom: 0.5rem">Listing Info</h3>
+                            <p style="font-size: 0.9rem; color: var(--gray-600)">Category: <strong>${listing.category}</strong></p>
+                            <p style="font-size: 0.9rem; color: var(--gray-600)">Type: <strong>${listing.listing_type}</strong></p>
+                            <p style="font-size: 0.9rem; color: var(--gray-600)">Status: <strong>${listing.is_available ? "Available" : "Unavailable"}</strong></p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function makePayment(listingId) {
+            try {
+                await apiRequest("/payments/", "POST", { listing_id: listingId }, true);
+                showAlert("Payment successful! 🎉", "success");
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function messageOwner(ownerId) {
+            window.location.href = `messages.html?user_id=${ownerId}`;
+        }
+
+        async function submitReview() {
+            const rating = parseInt(document.getElementById("rating").value);
+            const comment = document.getElementById("comment").value.trim();
+
+            if (!comment) {
+                showAlert("Please write a comment", "danger");
+                return;
+            }
+
+            try {
+                await apiRequest(`/reviews/${listingId}`, "POST", { rating, comment }, true);
+                showAlert("Review submitted! Reloading...", "success");
+                setTimeout(() => location.reload(), 2000);
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        loadListing();
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Listing - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Edit Listing</h1>
+            <p>Update your listing details</p>
+        </div>
+
+        <div class="form-container">
+            <div class="card">
+                <div id="alert-container"></div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" placeholder="Listing title">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="4" placeholder="Describe your product or service..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Price (₦)</label>
+                    <input type="number" id="price" placeholder="Enter price in Naira">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category">
+                        <option value="">Select category</option>
+                        <option value="product">Product</option>
+                        <option value="service">Service</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="listing_type">
+                        <option value="">Select type</option>
+                        <option value="tutoring">Tutoring</option>
+                        <option value="design">Design</option>
+                        <option value="food">Food</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="writing">Writing</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="is_available">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="updateListing()">Save Changes</button>
+                <a href="my-listings.html" class="btn btn-outline" style="margin-left: 1rem">Cancel</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        const params = new URLSearchParams(window.location.search);
+        const listingId = params.get("id");
+
+        if (!listingId) {
+            window.location.href = "my-listings.html";
+        }
+
+        async function loadListing() {
+            try {
+                const listing = await apiRequest(`/listings/${listingId}`, "GET");
+
+                document.getElementById("title").value = listing.title;
+                document.getElementById("description").value = listing.description;
+                document.getElementById("price").value = listing.price;
+                document.getElementById("category").value = listing.category;
+                document.getElementById("listing_type").value = listing.listing_type;
+                document.getElementById("is_available").value = listing.is_available.toString();
+
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        async function updateListing() {
+            const title = document.getElementById("title").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const price = document.getElementById("price").value.trim();
+            const category = document.getElementById("category").value;
+            const listing_type = document.getElementById("listing_type").value;
+            const is_available = document.getElementById("is_available").value === "true";
+
+            if (!title || !description || !price || !category || !listing_type) {
+                showAlert("Please fill in all fields", "danger");
+                return;
+            }
+
+            try {
+                await apiRequest(`/listings/${listingId}`, "PUT", {
+                    title,
+                    description,
+                    price: parseFloat(price),
+                    category,
+                    listing_type,
+                    is_available
+                }, true);
+                showAlert("Listing updated successfully! Redirecting...", "success");
+                setTimeout(() => { window.location.href = "my-listings.html"; }, 2000);
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        loadListing();
+    </script>
+</body>
+</html>

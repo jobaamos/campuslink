@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .job-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .job-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-card p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .job-budget {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem;
+        }
+
+        .modal h3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center">
+            <div>
+                <h1>Browse Jobs</h1>
+                <p>Find jobs and gigs posted by students on campus</p>
+            </div>
+            <button class="btn btn-primary" onclick="openPostJobModal()">+ Post a Job</button>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- JOBS GRID -->
+        <div class="grid-2" id="jobs-grid">
+            <p>Loading jobs...</p>
+        </div>
+    </div>
+
+    <!-- POST JOB MODAL -->
+    <div class="modal-overlay" id="post-job-modal">
+        <div class="modal">
+            <h3>Post a Job</h3>
+            <div id="modal-alert"></div>
+            <div class="form-group">
+                <label>Job Title</label>
+                <input type="text" id="job-title" placeholder="e.g. Logo Design Needed">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="job-description" rows="3" placeholder="Describe the job..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Budget</label>
+                <input type="text" id="job-budget" placeholder="e.g. 5000 - 10000 NGN">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="job-category">
+                    <option value="">Select category</option>
+                    <option value="design">Design</option>
+                    <option value="tutoring">Tutoring</option>
+                    <option value="writing">Writing</option>
+                    <option value="tech">Tech</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="postJob()">Post Job</button>
+                <button class="btn btn-outline" onclick="closePostJobModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLY MODAL -->
+    <div class="modal-overlay" id="apply-modal">
+        <div class="modal">
+            <h3>Apply for Job</h3>
+            <div id="apply-alert"></div>
+            <input type="hidden" id="apply-job-id">
+            <div class="form-group">
+                <label>Cover Letter</label>
+                <textarea id="cover-letter" rows="4" placeholder="Why are you the best fit for this job?"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="applyForJob()">Submit Application</button>
+                <button class="btn btn-outline" onclick="closeApplyModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        async function loadJobs() {
+            try {
+                const jobs = await apiRequest("/jobs/", "GET");
+                const grid = document.getElementById("jobs-grid");
+
+                if (jobs.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--gray-600)">
+                            <div style="font-size: 3rem; margin-bottom: 1rem">💼</div>
+                            <h3>No jobs posted yet</h3>
+                            <p>Be the first to post a job!</p>
+                        </div>`;
+                    return;
+                }
+
+                const user = getUser();
+                grid.innerHTML = jobs.map(job => `
+                    <div class="job-card">
+                        <h3>${job.title}</h3>
+                        <p>${job.description.substring(0, 120)}${job.description.length > 120 ? "..." : ""}</p>
+                        <div class="job-meta">
+                            <span class="job-budget">${job.budget}</span>
+                            <span class="badge badge-primary">${job.category}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center">
+                            <small style="color: var(--gray-600)">${formatDate(job.created_at)}</small>
+                            ${user && user.id !== job.owner_id ? `
+                                <button class="btn btn-primary" onclick="openApplyModal(${job.id})">Apply</button>
+                            ` : `<span class="badge badge-warning">Your Post</span>`}
+                        </div>
+                    </div>
+                `).join("");
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        function openPostJobModal() {
+            document.getElementById("post-job-modal").classList.add("active");
+        }
+
+        function closePostJobModal() {
+            document.getElementById("post-job-modal").classList.remove("active");
+        }
+
+        function openApplyModal(jobId) {
+            document.getElementById("apply-job-id").value = jobId;
+            document.getElementById("apply-modal").classList.add("active");
+        }
+
+        function closeApplyModal() {
+            document.getElementById("apply-modal").classList.remove("active");
+        }
+
+        async function postJob() {
+            const title = document.getElementById("job-title").value.trim();
+            const description = document.getElementById("job-description").value.trim();
+            const budget = document.getElementById("job-budget").value.trim();
+            const category = document.getElementById("job-category").value;
+
+            if (!title || !description || !budget || !category) {
+                showAlert("Please fill in all fields", "danger", "modal-alert");
+                return;
+            }
+
+            try {
+                await apiRequest("/jobs/", "POST", { title, description, budget, category }, true);
+                closePostJobModal();
+                showAlert("Job posted successfully!", "success");
+                loadJobs();
+            } catch (error) {
+                showAlert(error.message, "danger", "modal-alert");
+            }
+        }
+
+        async function applyForJob() {
+            const jobId = document.getElementById("apply-job-id").value;
+            const cover_letter = document.getElementById("cover-letter").value.trim();
+
+            if (!cover_letter) {
+                showAlert("Please write a cover letter", "danger", "apply-alert");
+                return;
+            }
+
+            try {
+                await apiRequest(`/jobs/${jobId}/apply`, "POST", { cover_letter }, true);
+                closeApplyModal();
+                showAlert("Application submitted successfully!", "success");
+            } catch (error) {
+                showAlert(error.message, "danger", "apply-alert");
+            }
+        }
+
+        loadJobs();
+    </script>
+</body>
+</html>

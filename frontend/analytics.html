@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .earnings-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .earnings-banner h2 {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .earnings-banner .amount {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .earnings-banner p {
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Seller Analytics</h1>
+            <p>Track your performance on CampusLink</p>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- EARNINGS BANNER -->
+        <div class="earnings-banner">
+            <h2>Total Earnings</h2>
+            <div class="amount" id="total-earnings">Loading...</div>
+            <p id="payments-count">Loading payments...</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🛍️</div>
+                <div class="stat-number" id="total-listings">-</div>
+                <div class="stat-label">Total Listings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="active-listings">-</div>
+                <div class="stat-label">Active Listings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number" id="total-reviews">-</div>
+                <div class="stat-label">Total Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number" id="avg-rating">-</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+
+        <!-- RECENT PAYMENTS -->
+        <div class="card">
+            <h3 style="margin-bottom: 1rem">Recent Payments Received</h3>
+            <div id="payments-list">
+                <p style="color: var(--gray-600)">Loading payments...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        requireAuth();
+
+        async function loadAnalytics() {
+            try {
+                const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
+                const payments = await apiRequest("/payments/my-earnings", "GET", null, true);
+
+                // Earnings banner
+                document.getElementById("total-earnings").textContent = formatCurrency(analytics.total_earnings);
+                document.getElementById("payments-count").textContent = `${analytics.total_payments_received} payments received`;
+
+                // Stats
+                document.getElementById("total-listings").textContent = analytics.total_listings;
+                document.getElementById("active-listings").textContent = analytics.active_listings;
+                document.getElementById("total-reviews").textContent = analytics.total_reviews;
+                document.getElementById("avg-rating").textContent = analytics.average_rating + " ⭐";
+
+                // Payments list
+                const paymentsList = document.getElementById("payments-list");
+                if (payments.length === 0) {
+                    paymentsList.innerHTML = `<p style="color: var(--gray-600)">No payments received yet.</p>`;
+                    return;
+                }
+
+                paymentsList.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--gray-200)">
+                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Reference</th>
+                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Amount</th>
+                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Status</th>
+                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${payments.map(p => `
+                                <tr style="border-bottom: 1px solid var(--gray-200)">
+                                    <td style="padding: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">${p.reference.substring(0, 16)}...</td>
+                                    <td style="padding: 0.7rem; font-weight: 600; color: var(--primary)">${formatCurrency(p.amount)}</td>
+                                    <td style="padding: 0.7rem"><span class="badge badge-success">${p.status}</span></td>
+                                    <td style="padding: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">${formatDate(p.created_at)}</td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        loadAnalytics();
+    </script>
+</body>
+</html>

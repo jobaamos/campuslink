@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listings - CampusLink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .filters {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filters .form-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .listing-card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .listing-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .listing-card p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .listing-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .listing-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .listing-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--gray-600);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🔗 CampusLink</div>
+        <nav id="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listings.html">Listings</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="messages.html">Messages</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Browse Listings</h1>
+            <p>Discover products and services from students on campus</p>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters">
+            <div class="form-group">
+                <label>Search</label>
+                <input type="text" id="search" placeholder="Search listings...">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="product">Products</option>
+                    <option value="service">Services</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select id="type-filter">
+                    <option value="">All Types</option>
+                    <option value="tutoring">Tutoring</option>
+                    <option value="design">Design</option>
+                    <option value="food">Food</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="writing">Writing</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="filterListings()">Filter</button>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- LISTINGS GRID -->
+        <div class="grid-3" id="listings-grid">
+            <p>Loading listings...</p>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        let allListings = [];
+
+        async function loadListings() {
+            try {
+                allListings = await apiRequest("/listings/", "GET");
+                renderListings(allListings);
+            } catch (error) {
+                showAlert(error.message, "danger");
+            }
+        }
+
+        function renderListings(listings) {
+            const grid = document.getElementById("listings-grid");
+            if (listings.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1">
+                        <div class="empty-icon">🛍️</div>
+                        <h3>No listings found</h3>
+                        <p>Be the first to create a listing!</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = listings.map(listing => `
+    <div class="listing-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
+            <h3 style="margin-bottom: 0">${listing.title}</h3>
+            ${listing.owner_role === "verified_seller" ? '<span class="badge badge-success">✅ Verified</span>' : ""}
+        </div>
+        <p>${listing.description.substring(0, 100)}${listing.description.length > 100 ? "..." : ""}</p>
+        <div class="listing-meta">
+            <span class="listing-price">${formatCurrency(listing.price)}</span>
+            <span class="badge badge-primary">${listing.category}</span>
+        </div>
+        <div class="listing-footer">
+            <span class="badge badge-success">${listing.listing_type}</span>
+            <button class="btn btn-primary" onclick="viewListing(${listing.id})">View</button>
+        </div>
+        <div style="margin-top: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">
+            By ${listing.owner_name || "Unknown"}
+        </div>
+    </div>
+`).join("");
+        }
+
+        function filterListings() {
+            const search = document.getElementById("search").value.toLowerCase();
+            const category = document.getElementById("category-filter").value;
+            const type = document.getElementById("type-filter").value;
+
+            const filtered = allListings.filter(listing => {
+                const matchSearch = listing.title.toLowerCase().includes(search) ||
+                    listing.description.toLowerCase().includes(search);
+                const matchCategory = !category || listing.category === category;
+                const matchType = !type || listing.listing_type === type;
+                return matchSearch && matchCategory && matchType;
+            });
+
+            renderListings(filtered);
+        }
+
+        function viewListing(id) {
+            window.location.href = `listing-detail.html?id=${id}`;
+        }
+
+        loadListings();
+    </script>
+</body>
+</html>
