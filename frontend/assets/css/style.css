@@ -230,6 +230,12 @@ a {
         grid-template-columns: 1fr;
     }
 
+    /* NAVBAR CTA */
+    .nav-cta {
+        width: 100%;
+        text-align: center;
+    }
+
     /* NAVBAR */
     .navbar {
         flex-direction: column;
