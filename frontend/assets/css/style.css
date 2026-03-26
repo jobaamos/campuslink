@@ -229,8 +229,151 @@ a {
     .grid-2 {
         grid-template-columns: 1fr;
     }
+
+    /* NAVBAR */
     .navbar {
         flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+
+    .navbar nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .navbar nav a {
+        margin-left: 0;
+        font-size: 0.85rem;
+    }
+
+    /* HERO */
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* CONTAINER */
+    .container {
+        padding: 1rem;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+        flex-direction: column !important;
         gap: 1rem;
+        align-items: flex-start !important;
+    }
+
+    /* CARDS */
+    .card {
+        padding: 1rem;
+    }
+
+    /* FILTERS */
+    .filters {
+        flex-direction: column;
+    }
+
+    /* STATS */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* ACTIONS GRID */
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* PROFILE */
+    .profile-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* MESSAGES */
+    .messages-layout {
+        grid-template-columns: 1fr !important;
+        height: auto !important;
+    }
+
+    /* LISTING DETAIL */
+    .listing-detail {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ADMIN BANNER */
+    .admin-banner {
+        flex-direction: column !important;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    /* TABLES */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* BUTTONS */
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+    }
+
+    /* AUTH CARD */
+    .auth-card {
+        padding: 1.5rem;
+    }
+
+    /* LISTING ROW */
+    .listing-row {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start !important;
+    }
+
+    .listing-actions {
+        flex-wrap: wrap;
+    }
+
+    /* CHAT */
+    .chat-input {
+        padding: 0.8rem;
+    }
+
+    /* JOBS */
+    .job-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .actions-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .hero h1 {
+        font-size: 1.6rem;
+    }
+
+    .navbar .logo {
+        font-size: 1.2rem;
     }
 }
