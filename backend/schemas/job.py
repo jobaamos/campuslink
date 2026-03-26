@@ -24,6 +24,7 @@ class JobResponse(BaseModel):
     is_open: bool
     created_at: datetime
     owner_id: int
+    owner_name: Optional[str] = None
 
     class Config:
         from_attributes = True

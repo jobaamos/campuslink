@@ -191,12 +191,15 @@
                             <span class="job-budget">${job.budget}</span>
                             <span class="badge badge-primary">${job.category}</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center">
-                            <small style="color: var(--gray-600)">${formatDate(job.created_at)}</small>
-                            ${user && user.id !== job.owner_id ? `
-                                <button class="btn btn-primary" onclick="openApplyModal(${job.id})">Apply</button>
-                            ` : `<span class="badge badge-warning">Your Post</span>`}
-                        </div>
+                        <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--gray-600)">
+    Posted by <strong>${job.owner_name || "Unknown"}</strong>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+    <small style="color: var(--gray-600)">${formatDate(job.created_at)}</small>
+    ${user && user.id !== job.owner_id ? `
+        <button class="btn btn-primary" onclick="openApplyModal(${job.id})">Apply</button>
+    ` : `<span class="badge badge-warning">Your Post</span>`}
+</div>
                     </div>
                 `).join("");
             } catch (error) {

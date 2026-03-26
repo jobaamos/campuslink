@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
 from ..models.job import Job, JobApplication
+from ..models.user import User
 from ..schemas.job import JobCreate, JobUpdate, JobResponse, JobApplicationCreate, JobApplicationResponse
 from ..utils.dependencies import get_current_user
-from ..models.user import User
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
@@ -19,17 +19,26 @@ def create_job(
     db.add(new_job)
     db.commit()
     db.refresh(new_job)
+    new_job.owner_name = current_user.full_name
     return new_job
 
 @router.get("/", response_model=List[JobResponse])
 def get_all_jobs(db: Session = Depends(get_db)):
-    return db.query(Job).filter(Job.is_open == True).all()
+    jobs = db.query(Job).filter(Job.is_open == True).all()
+    for job in jobs:
+        owner = db.query(User).filter(User.id == job.owner_id).first()
+        if owner:
+            job.owner_name = owner.full_name
+    return jobs
 
 @router.get("/{job_id}", response_model=JobResponse)
 def get_job(job_id: int, db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+    owner = db.query(User).filter(User.id == job.owner_id).first()
+    if owner:
+        job.owner_name = owner.full_name
     return job
 
 @router.put("/{job_id}", response_model=JobResponse)
@@ -50,6 +59,7 @@ def update_job(
     
     db.commit()
     db.refresh(job)
+    job.owner_name = current_user.full_name
     return job
 
 @router.delete("/{job_id}")
