@@ -39,6 +39,40 @@ def create_review(
     db.add(new_review)
     db.commit()
     db.refresh(new_review)
+
+    # Send notification to listing owner
+    from ..models.notification import Notification
+    notification = Notification(
+        message=f"{current_user.full_name} left a {review.rating}⭐ review on your listing: {listing.title}",
+        notification_type="review",
+        user_id=listing.owner_id
+    )
+    db.add(notification)
+    db.commit()
+
+    return new_review
+    listing = db.query(Listing).filter(Listing.id == listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if listing.owner_id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot review your own listing")
+    
+    existing_review = db.query(Review).filter(
+        Review.listing_id == listing_id,
+        Review.reviewer_id == current_user.id
+    ).first()
+    if existing_review:
+        raise HTTPException(status_code=400, detail="You have already reviewed this listing")
+    
+    new_review = Review(
+        rating=review.rating,
+        comment=review.comment,
+        listing_id=listing_id,
+        reviewer_id=current_user.id
+    )
+    db.add(new_review)
+    db.commit()
+    db.refresh(new_review)
     return new_review
 
 @router.get("/{listing_id}", response_model=List[ReviewResponse])

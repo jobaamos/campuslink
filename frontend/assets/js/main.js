@@ -92,3 +92,23 @@ function formatDate(dateStr) {
 function formatCurrency(amount) {
     return `₦${Number(amount).toLocaleString()}`;
 }
+
+// LOAD UNREAD NOTIFICATION COUNT
+async function loadNavNotifCount() {
+    if (!isLoggedIn()) return;
+    try {
+        const data = await apiRequest("/notifications/unread-count", "GET", null, true);
+        const els = document.querySelectorAll(".notif-count");
+        els.forEach(el => {
+            if (data.count > 0) {
+                el.textContent = `(${data.count})`;
+            } else {
+                el.textContent = "";
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+loadNavNotifCount();

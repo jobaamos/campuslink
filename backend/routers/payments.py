@@ -29,6 +29,40 @@ def initiate_payment(
 
     new_payment = Payment(
         amount=listing.price,
+        status="completed",
+        reference=reference,
+        listing_id=listing.id,
+        buyer_id=current_user.id,
+        seller_id=listing.owner_id
+    )
+    db.add(new_payment)
+    db.commit()
+    db.refresh(new_payment)
+
+    # Send notification to seller
+    from ..models.notification import Notification
+    notification = Notification(
+        message=f"{current_user.full_name} just paid for your listing: {listing.title} — ₦{listing.price:,.0f}",
+        notification_type="payment",
+        user_id=listing.owner_id
+    )
+    db.add(notification)
+    db.commit()
+
+    return new_payment
+):
+    listing = db.query(Listing).filter(Listing.id == payment.listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if listing.owner_id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot pay for your own listing")
+    if not listing.is_available:
+        raise HTTPException(status_code=400, detail="Listing is no longer available")
+
+    reference = str(uuid.uuid4())
+
+    new_payment = Payment(
+        amount=listing.price,
         status="completed",  # Simulated - auto complete
         reference=reference,
         listing_id=listing.id,
