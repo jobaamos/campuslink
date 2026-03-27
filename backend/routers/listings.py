@@ -24,8 +24,8 @@ def create_listing(
     db.refresh(new_listing)
 
     listing.owner_name = owner.full_name
-listing.owner_role = owner.role
-listing.owner_phone = owner.phone_number
+    listing.owner_role = owner.role
+    listing.owner_phone = owner.phone_number
     return new_listing
 
 @router.get("/", response_model=List[ListingResponse])
