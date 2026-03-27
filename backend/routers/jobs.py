@@ -121,31 +121,6 @@ def apply_for_job(
 
     return new_application
 
-    job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    if not job.is_open:
-        raise HTTPException(status_code=400, detail="Job is no longer open")
-    if job.owner_id == current_user.id:
-        raise HTTPException(status_code=400, detail="You cannot apply to your own job")
-    
-    existing_application = db.query(JobApplication).filter(
-        JobApplication.job_id == job_id,
-        JobApplication.applicant_id == current_user.id
-    ).first()
-    if existing_application:
-        raise HTTPException(status_code=400, detail="You have already applied for this job")
-    
-    new_application = JobApplication(
-        cover_letter=application.cover_letter,
-        job_id=job_id,
-        applicant_id=current_user.id
-    )
-    db.add(new_application)
-    db.commit()
-    db.refresh(new_application)
-    return new_application
-
 @router.get("/{job_id}/applications", response_model=List[JobApplicationResponse])
 def get_job_applications(
     job_id: int,
