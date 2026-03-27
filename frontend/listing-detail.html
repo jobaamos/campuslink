@@ -161,9 +161,16 @@
                                 <button class="btn btn-primary" style="width:100%; margin-bottom: 1rem" onclick="makePayment(${listing.id})">
                                     💳 Pay ₦${Number(listing.price).toLocaleString()}
                                 </button>
-                                <button class="btn btn-outline" style="width:100%" onclick="messageOwner(${listing.owner_id})">
-                                    💬 Message Seller
-                                </button>
+                                ${listing.owner_phone ? `
+    <a href="https://wa.me/${listing.owner_phone}?text=Hi, I am interested in your listing: ${encodeURIComponent(listing.title)}" 
+        target="_blank" class="btn btn-success" style="width:100%">
+        💬 Message Seller on WhatsApp
+    </a>
+` : `
+    <button class="btn btn-outline" style="width:100%" onclick="messageOwner(${listing.owner_id})">
+        💬 Message Seller
+    </button>
+`}
                             ` : '<p style="color: var(--gray-600)">This is your listing.</p>'}
                         </div>
 

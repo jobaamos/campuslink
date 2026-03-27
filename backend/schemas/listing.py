@@ -29,6 +29,7 @@ class ListingResponse(BaseModel):
     owner_id: int
     owner_name: Optional[str] = None
     owner_role: Optional[str] = None
+    owner_phone: Optional[str] = None
 
     class Config:
         from_attributes = True

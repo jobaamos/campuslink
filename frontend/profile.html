@@ -104,7 +104,7 @@
             <a href="messages.html">Messages</a>
             <a href="notifications.html">🔔 <span class="notif-count"></span></a>
             <a href="#" onclick="logout()">Logout</a>
-        </nav>
+        </nav>d
     </div>
 
     <div class="container">
@@ -160,6 +160,11 @@
                     <div class="form-group">
                         <label>Matric Number</label>
                         <input type="text" id="edit-matric" placeholder="Your matric number">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp Number</label>
+                        <input type="text" id="edit-phone" placeholder="e.g. 2348012345678">
+                        <small style="color: var(--gray-600)">Include country code e.g. 234 for Nigeria</small>
                     </div>
                     <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
                 </div>
@@ -234,6 +239,7 @@
                 document.getElementById("edit-name").value = user.full_name;
                 document.getElementById("edit-email").value = user.email;
                 document.getElementById("edit-matric").value = user.matric_number;
+                document.getElementById("edit-phone").value = user.phone_number || "";
 
                 // Load listings
                 loadMyListings();
@@ -275,23 +281,29 @@
         }
 
         async function updateProfile() {
-            const full_name = document.getElementById("edit-name").value.trim();
-            const email = document.getElementById("edit-email").value.trim();
-            const matric_number = document.getElementById("edit-matric").value.trim();
+    const full_name = document.getElementById("edit-name").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const matric_number = document.getElementById("edit-matric").value.trim();
+    const phone_number = document.getElementById("edit-phone").value.trim();
 
-            if (!full_name || !email || !matric_number) {
-                showAlert("Please fill in all fields", "danger");
-                return;
-            }
+    if (!full_name || !email || !matric_number) {
+        showAlert("Please fill in all required fields", "danger");
+        return;
+    }
 
-            try {
-                await apiRequest("/users/me", "PUT", { full_name, email, matric_number }, true);
-                showAlert("Profile updated successfully!", "success");
-                loadProfile();
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
+    try {
+        await apiRequest("/users/me", "PUT", { 
+            full_name, 
+            email, 
+            matric_number,
+            phone_number 
+        }, true);
+        showAlert("Profile updated successfully!", "success");
+        loadProfile();
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
 
         async function becomeSeller() {
             try {

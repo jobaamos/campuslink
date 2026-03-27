@@ -23,8 +23,9 @@ def create_listing(
     db.commit()
     db.refresh(new_listing)
 
-    new_listing.owner_name = current_user.full_name
-    new_listing.owner_role = current_user.role
+    listing.owner_name = owner.full_name
+listing.owner_role = owner.role
+listing.owner_phone = owner.phone_number
     return new_listing
 
 @router.get("/", response_model=List[ListingResponse])
@@ -34,7 +35,8 @@ def get_all_listings(db: Session = Depends(get_db)):
         owner = db.query(User).filter(User.id == listing.owner_id).first()
         if owner:
             listing.owner_name = owner.full_name
-            listing.owner_role = owner.role
+listing.owner_role = owner.role
+listing.owner_phone = owner.phone_number
     return listings
 
 @router.get("/{listing_id}", response_model=ListingResponse)
@@ -45,7 +47,8 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     owner = db.query(User).filter(User.id == listing.owner_id).first()
     if owner:
         listing.owner_name = owner.full_name
-        listing.owner_role = owner.role
+listing.owner_role = owner.role
+listing.owner_phone = owner.phone_number
     return listing
 
 @router.put("/{listing_id}", response_model=ListingResponse)

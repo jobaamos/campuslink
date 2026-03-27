@@ -24,6 +24,8 @@ def update_my_profile(
         current_user.email = profile.email
     if profile.matric_number:
         current_user.matric_number = profile.matric_number
+    if profile.phone_number is not None:
+        current_user.phone_number = profile.phone_number
     
     db.commit()
     db.refresh(current_user)
