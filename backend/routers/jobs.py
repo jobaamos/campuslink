@@ -120,7 +120,7 @@ def apply_for_job(
     db.commit()
 
     return new_application
-):
+
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
