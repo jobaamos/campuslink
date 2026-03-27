@@ -50,29 +50,7 @@ def initiate_payment(
     db.commit()
 
     return new_payment
-):
-    listing = db.query(Listing).filter(Listing.id == payment.listing_id).first()
-    if not listing:
-        raise HTTPException(status_code=404, detail="Listing not found")
-    if listing.owner_id == current_user.id:
-        raise HTTPException(status_code=400, detail="You cannot pay for your own listing")
-    if not listing.is_available:
-        raise HTTPException(status_code=400, detail="Listing is no longer available")
 
-    reference = str(uuid.uuid4())
-
-    new_payment = Payment(
-        amount=listing.price,
-        status="completed",  # Simulated - auto complete
-        reference=reference,
-        listing_id=listing.id,
-        buyer_id=current_user.id,
-        seller_id=listing.owner_id
-    )
-    db.add(new_payment)
-    db.commit()
-    db.refresh(new_payment)
-    return new_payment
 
 @router.get("/my-payments", response_model=List[PaymentResponse])
 def get_my_payments(
@@ -81,6 +59,7 @@ def get_my_payments(
 ):
     return db.query(Payment).filter(Payment.buyer_id == current_user.id).all()
 
+
 @router.get("/my-earnings", response_model=List[PaymentResponse])
 def get_my_earnings(
     db: Session = Depends(get_db),
@@ -88,12 +67,14 @@ def get_my_earnings(
 ):
     return db.query(Payment).filter(Payment.seller_id == current_user.id).all()
 
+
 @router.get("/", response_model=List[PaymentResponse])
 def get_all_payments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_user)
 ):
     return db.query(Payment).all()
+
 
 @router.get("/{payment_id}", response_model=PaymentResponse)
 def get_payment(
