@@ -125,12 +125,6 @@
         </div>
 
         <!-- RECENT PAYMENTS -->
-        <div class="card">
-            <h3 style="margin-bottom: 1rem">Recent Payments Received</h3>
-            <div id="payments-list">
-                <p style="color: var(--gray-600)">Loading payments...</p>
-            </div>
-        </div>
 
     </div>
 
@@ -139,54 +133,19 @@
         requireAuth();
 
         async function loadAnalytics() {
-            try {
-                const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
-                const payments = await apiRequest("/payments/my-earnings", "GET", null, true);
+    try {
+        const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
 
-                // Earnings banner
-                document.getElementById("total-earnings").textContent = formatCurrency(analytics.total_earnings);
-                document.getElementById("payments-count").textContent = `${analytics.total_payments_received} payments received`;
+        // Stats
+        document.getElementById("total-listings").textContent = analytics.total_listings;
+        document.getElementById("active-listings").textContent = analytics.active_listings;
+        document.getElementById("total-reviews").textContent = analytics.total_reviews;
+        document.getElementById("avg-rating").textContent = analytics.average_rating + " ⭐";
 
-                // Stats
-                document.getElementById("total-listings").textContent = analytics.total_listings;
-                document.getElementById("active-listings").textContent = analytics.active_listings;
-                document.getElementById("total-reviews").textContent = analytics.total_reviews;
-                document.getElementById("avg-rating").textContent = analytics.average_rating + " ⭐";
-
-                // Payments list
-                const paymentsList = document.getElementById("payments-list");
-                if (payments.length === 0) {
-                    paymentsList.innerHTML = `<p style="color: var(--gray-600)">No payments received yet.</p>`;
-                    return;
-                }
-
-                paymentsList.innerHTML = `
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid var(--gray-200)">
-                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Reference</th>
-                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Amount</th>
-                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Status</th>
-                                <th style="text-align: left; padding: 0.7rem; color: var(--gray-600); font-weight: 600">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${payments.map(p => `
-                                <tr style="border-bottom: 1px solid var(--gray-200)">
-                                    <td style="padding: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">${p.reference.substring(0, 16)}...</td>
-                                    <td style="padding: 0.7rem; font-weight: 600; color: var(--primary)">${formatCurrency(p.amount)}</td>
-                                    <td style="padding: 0.7rem"><span class="badge badge-success">${p.status}</span></td>
-                                    <td style="padding: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">${formatDate(p.created_at)}</td>
-                                </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                `;
-
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
 
         loadAnalytics();
     </script>

@@ -163,11 +163,6 @@
         <!-- STATS -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-number" id="total-users">-</div>
-                <div class="stat-label">Total Users</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-icon">🛍️</div>
                 <div class="stat-number" id="total-listings">-</div>
                 <div class="stat-label">Total Listings</div>
@@ -189,7 +184,6 @@
             <div class="tabs">
                 <div class="tab active" id="tab-btn-users" onclick="switchTab('users')">👥 Users</div>
                 <div class="tab" id="tab-btn-listings" onclick="switchTab('listings')">🛍️ Listings</div>
-                <div class="tab" id="tab-btn-payments" onclick="switchTab('payments')">💳 Payments</div>
             </div>
 
             <div id="tab-users" class="tab-content active">
@@ -200,9 +194,6 @@
                 <div id="listings-table">Loading listings...</div>
             </div>
 
-            <div id="tab-payments" class="tab-content">
-                <div id="payments-table">Loading payments...</div>
-            </div>
         </div>
 
     </div>
@@ -219,7 +210,6 @@
                 document.getElementById("total-users").textContent = overview.total_users;
                 document.getElementById("total-listings").textContent = overview.total_listings;
                 document.getElementById("total-jobs").textContent = overview.total_jobs;
-                document.getElementById("total-payments").textContent = overview.total_payments;
 
                 loadUsers();
             } catch (error) {
@@ -302,41 +292,6 @@
             }
         }
 
-        async function loadPayments() {
-            try {
-                const payments = await apiRequest("/admin/payments", "GET", null, true);
-                document.getElementById("payments-table").innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Reference</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Buyer</th>
-                                <th>Seller</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${payments.map(p => `
-                                <tr>
-                                    <td>${p.id}</td>
-                                    <td style="font-size: 0.8rem">${p.reference.substring(0, 12)}...</td>
-                                    <td>${formatCurrency(p.amount)}</td>
-                                    <td><span class="badge badge-success">${p.status}</span></td>
-                                    <td>User #${p.buyer_id}</td>
-                                    <td>User #${p.seller_id}</td>
-                                    <td>${formatDate(p.created_at)}</td>
-                                </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                `;
-            } catch (error) {
-                document.getElementById("payments-table").innerHTML = `<p style="color:red">${error.message}</p>`;
-            }
-        }
 
         async function verifySeller(userId) {
             if (!confirm("Verify this seller?")) return;
@@ -379,7 +334,6 @@
             document.getElementById(`tab-${tab}`).classList.add("active");
 
             if (tab === "listings") loadListings();
-            if (tab === "payments") loadPayments();
         }
 
         loadAdminDashboard();
