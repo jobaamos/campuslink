@@ -162,10 +162,6 @@
                 <div class="stat-label">My Listings</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="stat-earnings">-</div>
-                <div class="stat-label">Total Earnings</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-number" id="stat-reviews">-</div>
                 <div class="stat-label">Reviews</div>
             </div>
@@ -253,7 +249,6 @@
                 // Analytics
                 const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
                 document.getElementById("stat-listings").textContent = analytics.total_listings;
-                document.getElementById("stat-earnings").textContent = formatCurrency(analytics.total_earnings);
                 document.getElementById("stat-reviews").textContent = analytics.total_reviews;
                 document.getElementById("stat-rating").textContent = analytics.average_rating + " ⭐";
 
