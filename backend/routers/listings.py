@@ -47,8 +47,8 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     owner = db.query(User).filter(User.id == listing.owner_id).first()
     if owner:
         listing.owner_name = owner.full_name
-listing.owner_role = owner.role
-listing.owner_phone = owner.phone_number
+    listing.owner_role = owner.role
+    listing.owner_phone = owner.phone_number
     return listing
 
 @router.put("/{listing_id}", response_model=ListingResponse)
