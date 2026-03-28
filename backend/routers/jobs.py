@@ -74,6 +74,8 @@ def delete_job(
     if job.owner_id != current_user.id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to delete this job")
     
+    # Delete related applications first
+    db.query(JobApplication).filter(JobApplication.job_id == job_id).delete()
     db.delete(job)
     db.commit()
     return {"message": "Job deleted successfully"}
