@@ -86,6 +86,11 @@ def delete_listing(
     if listing.owner_id != current_user.id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to delete this listing")
     
+    # Delete related records first
+    from ..models.payment import Payment
+    from ..models.review import Review
+    db.query(Payment).filter(Payment.listing_id == listing_id).delete()
+    db.query(Review).filter(Review.listing_id == listing_id).delete()
     db.delete(listing)
     db.commit()
     return {"message": "Listing deleted successfully"}
