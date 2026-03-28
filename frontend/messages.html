@@ -189,20 +189,24 @@
         <div id="alert-container"></div>
 
         <!-- NEW MESSAGE -->
-        <div class="card" style="margin-bottom: 1.5rem">
-            <h3 style="margin-bottom: 1rem">Send a New Message</h3>
-            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap">
-                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px">
-                    <label>Recipient User ID</label>
-                    <input type="number" id="receiver-id" placeholder="Enter user ID">
-                </div>
-                <div class="form-group" style="margin-bottom: 0; flex: 3; min-width: 200px">
-                    <label>Message</label>
-                    <input type="text" id="new-message" placeholder="Type your message...">
-                </div>
-                <button class="btn btn-primary" onclick="sendNewMessage()">Send</button>
-            </div>
+<div class="card" style="margin-bottom: 1.5rem">
+    <h3 style="margin-bottom: 1rem">Send a New Message</h3>
+    <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap">
+        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px; position: relative">
+            <label>Search User by Name</label>
+            <input type="text" id="user-search" placeholder="Type a name..." oninput="searchUsers()" autocomplete="off">
+            <div id="search-results" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--gray-400); border-radius: var(--radius); z-index: 100; display: none; max-height: 200px; overflow-y: auto; box-shadow: var(--shadow)"></div>
         </div>
+        <div class="form-group" style="margin-bottom: 0; flex: 3; min-width: 200px">
+            <label>Message</label>
+            <input type="text" id="new-message" placeholder="Type your message...">
+        </div>
+        <button class="btn btn-primary" onclick="sendNewMessage()">Send</button>
+    </div>
+    <div id="selected-user" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--primary); display: none">
+        ✅ Sending to: <strong id="selected-user-name"></strong>
+    </div>
+</div>
 
         <div class="messages-layout">
             <!-- INBOX -->
@@ -227,127 +231,175 @@
     <script>
         requireAuth();
 
-        let currentUserId = null;
-        let currentThreadUserId = null;
+let currentUserId = null;
+let currentThreadUserId = null;
+let selectedReceiverId = null;
 
-        async function loadInbox() {
-            try {
-                const user = await apiRequest("/users/me", "GET", null, true);
-                currentUserId = user.id;
+async function loadInbox() {
+    try {
+        const user = await apiRequest("/users/me", "GET", null, true);
+        currentUserId = user.id;
 
-                const inbox = await apiRequest("/messages/inbox", "GET", null, true);
-                const inboxItems = document.getElementById("inbox-items");
+        const inbox = await apiRequest("/messages/inbox", "GET", null, true);
+        const inboxItems = document.getElementById("inbox-items");
 
-                if (inbox.length === 0) {
-                    inboxItems.innerHTML = `<p style="padding: 1rem; color: var(--gray-600)">No messages yet.</p>`;
-                    return;
+        if (inbox.length === 0) {
+            inboxItems.innerHTML = `<p style="padding: 1rem; color: var(--gray-600)">No messages yet.</p>`;
+            return;
+        }
+
+        const senders = {};
+        inbox.forEach(msg => {
+            if (!senders[msg.sender_id]) {
+                senders[msg.sender_id] = msg;
+            }
+        });
+
+        inboxItems.innerHTML = Object.values(senders).map(msg => `
+            <div class="inbox-item ${!msg.is_read ? "unread-item" : ""}" onclick="loadThread(${msg.sender_id})">
+                ${!msg.is_read ? '<div class="unread"></div>' : ""}
+                <h4>User #${msg.sender_id}</h4>
+                <p>${msg.content}</p>
+            </div>
+        `).join("");
+
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get("user_id");
+        if (userId) {
+            loadThread(parseInt(userId));
+        }
+
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
+
+async function searchUsers() {
+    const query = document.getElementById("user-search").value.trim();
+    const resultsDiv = document.getElementById("search-results");
+
+    if (query.length < 2) {
+        resultsDiv.style.display = "none";
+        return;
+    }
+
+    try {
+        const users = await apiRequest(`/users/search?q=${encodeURIComponent(query)}`, "GET", null, true);
+        
+        if (users.length === 0) {
+            resultsDiv.innerHTML = `<div style="padding: 0.8rem; color: var(--gray-600); font-size: 0.9rem">No users found</div>`;
+        } else {
+            resultsDiv.innerHTML = users.map(u => `
+                <div onclick="selectUser(${u.id}, '${u.full_name}')" 
+                    style="padding: 0.8rem 1rem; cursor: pointer; border-bottom: 1px solid var(--gray-200); font-size: 0.9rem"
+                    onmouseover="this.style.background='var(--primary-light)'" 
+                    onmouseout="this.style.background='white'">
+                    <strong>${u.full_name}</strong>
+                    <span style="color: var(--gray-600); font-size: 0.8rem"> — ${u.role.replace("_", " ")}</span>
+                </div>
+            `).join("");
+        }
+        resultsDiv.style.display = "block";
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function selectUser(id, name) {
+    selectedReceiverId = id;
+    document.getElementById("user-search").value = name;
+    document.getElementById("search-results").style.display = "none";
+    document.getElementById("selected-user").style.display = "block";
+    document.getElementById("selected-user-name").textContent = name;
+}
+
+async function loadThread(userId) {
+    currentThreadUserId = userId;
+
+    document.querySelectorAll(".inbox-item").forEach(item => item.classList.remove("active"));
+
+    try {
+        const messages = await apiRequest(`/messages/thread/${userId}`, "GET", null, true);
+
+        document.getElementById("chat-area").innerHTML = `
+            <div class="chat-header">Conversation with User #${userId}</div>
+            <div class="chat-messages" id="chat-messages">
+                ${messages.length === 0 ? '<p style="color: var(--gray-600)">No messages yet. Say hello!</p>' :
+                    messages.map(msg => `
+                        <div class="message-bubble ${msg.sender_id === currentUserId ? "sent" : "received"}">
+                            <p>${msg.content}</p>
+                            <div class="message-time">${formatDate(msg.created_at)}</div>
+                        </div>
+                    `).join("")
                 }
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-message-input" placeholder="Type a message..." onkeypress="handleEnter(event)">
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+        `;
 
-                // Group by sender
-                const senders = {};
-                inbox.forEach(msg => {
-                    if (!senders[msg.sender_id]) {
-                        senders[msg.sender_id] = msg;
-                    }
-                });
+        const chatMessages = document.getElementById("chat-messages");
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                inboxItems.innerHTML = Object.values(senders).map(msg => `
-                    <div class="inbox-item ${!msg.is_read ? "unread-item" : ""}" onclick="loadThread(${msg.sender_id})">
-                        ${!msg.is_read ? '<div class="unread"></div>' : ""}
-                        <h4>User #${msg.sender_id}</h4>
-                        <p>${msg.content}</p>
-                    </div>
-                `).join("");
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
 
-                // Check if redirected from listing
-                const params = new URLSearchParams(window.location.search);
-                const userId = params.get("user_id");
-                if (userId) {
-                    loadThread(parseInt(userId));
-                }
+async function sendMessage() {
+    const content = document.getElementById("chat-message-input").value.trim();
+    if (!content) return;
 
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
+    try {
+        await apiRequest("/messages/", "POST", {
+            receiver_id: currentThreadUserId,
+            content
+        }, true);
+        document.getElementById("chat-message-input").value = "";
+        loadThread(currentThreadUserId);
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
 
-        async function loadThread(userId) {
-            currentThreadUserId = userId;
+async function sendNewMessage() {
+    if (!selectedReceiverId) {
+        showAlert("Please search and select a user first", "danger");
+        return;
+    }
+    const content = document.getElementById("new-message").value.trim();
+    if (!content) {
+        showAlert("Please type a message", "danger");
+        return;
+    }
 
-            // Mark active
-            document.querySelectorAll(".inbox-item").forEach(item => item.classList.remove("active"));
-
-            try {
-                const messages = await apiRequest(`/messages/thread/${userId}`, "GET", null, true);
-
-                document.getElementById("chat-area").innerHTML = `
-                    <div class="chat-header">Conversation with User #${userId}</div>
-                    <div class="chat-messages" id="chat-messages">
-                        ${messages.length === 0 ? '<p style="color: var(--gray-600)">No messages yet. Say hello!</p>' :
-                            messages.map(msg => `
-                                <div class="message-bubble ${msg.sender_id === currentUserId ? "sent" : "received"}">
-                                    <p>${msg.content}</p>
-                                    <div class="message-time">${formatDate(msg.created_at)}</div>
-                                </div>
-                            `).join("")
-                        }
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="chat-message-input" placeholder="Type a message..." onkeypress="handleEnter(event)">
-                        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
-                    </div>
-                `;
-
-                // Scroll to bottom
-                const chatMessages = document.getElementById("chat-messages");
-                if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
-
-        async function sendMessage() {
-            const content = document.getElementById("chat-message-input").value.trim();
-            if (!content) return;
-
-            try {
-                await apiRequest("/messages/", "POST", {
-                    receiver_id: currentThreadUserId,
-                    content
-                }, true);
-                document.getElementById("chat-message-input").value = "";
-                loadThread(currentThreadUserId);
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
-
-        async function sendNewMessage() {
-            const receiver_id = parseInt(document.getElementById("receiver-id").value);
-            const content = document.getElementById("new-message").value.trim();
-
-            if (!receiver_id || !content) {
-                showAlert("Please fill in both fields", "danger");
-                return;
-            }
-
-            try {
-                await apiRequest("/messages/", "POST", { receiver_id, content }, true);
-                showAlert("Message sent!", "success");
-                document.getElementById("new-message").value = "";
-                loadInbox();
-                loadThread(receiver_id);
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
-
-        function handleEnter(event) {
-            if (event.key === "Enter") sendMessage();
-        }
-
+    try {
+        await apiRequest("/messages/", "POST", { receiver_id: selectedReceiverId, content }, true);
+        showAlert("Message sent!", "success");
+        document.getElementById("new-message").value = "";
+        document.getElementById("user-search").value = "";
+        document.getElementById("selected-user").style.display = "none";
+        selectedReceiverId = null;
         loadInbox();
+        loadThread(selectedReceiverId);
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
+
+function handleEnter(event) {
+    if (event.key === "Enter") sendMessage();
+}
+
+// Close search results when clicking outside
+document.addEventListener("click", function(e) {
+    if (!e.target.closest("#user-search") && !e.target.closest("#search-results")) {
+        document.getElementById("search-results").style.display = "none";
+    }
+});
+
+loadInbox();
     </script>
 </body>
 </html>

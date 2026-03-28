@@ -67,3 +67,14 @@ def update_user_role(
     db.refresh(user)
     return user
     
+@router.get("/search", response_model=list[UserResponse])
+def search_users(
+    q: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    users = db.query(User).filter(
+        User.full_name.ilike(f"%{q}%"),
+        User.id != current_user.id
+    ).limit(10).all()
+    return users
