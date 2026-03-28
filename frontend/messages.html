@@ -255,13 +255,25 @@ async function loadInbox() {
             }
         });
 
-        inboxItems.innerHTML = Object.values(senders).map(msg => `
-            <div class="inbox-item ${!msg.is_read ? "unread-item" : ""}" onclick="loadThread(${msg.sender_id})">
-                ${!msg.is_read ? '<div class="unread"></div>' : ""}
-                <h4>User #${msg.sender_id}</h4>
-                <p>${msg.content}</p>
-            </div>
-        `).join("");
+        const senderIds = Object.keys(senders);
+const senderNames = {};
+
+await Promise.all(senderIds.map(async (id) => {
+    try {
+        const senderUser = await apiRequest(`/users/${id}/profile`, "GET", null, true);
+        senderNames[id] = senderUser.full_name;
+    } catch {
+        senderNames[id] = `User #${id}`;
+    }
+}));
+
+inboxItems.innerHTML = Object.values(senders).map(msg => `
+    <div class="inbox-item ${!msg.is_read ? "unread-item" : ""}" onclick="loadThread(${msg.sender_id})">
+        ${!msg.is_read ? '<div class="unread"></div>' : ""}
+        <h4>${senderNames[msg.sender_id] || "User #" + msg.sender_id}</h4>
+        <p>${msg.content}</p>
+    </div>
+`).join("");
 
         const params = new URLSearchParams(window.location.search);
         const userId = params.get("user_id");
@@ -312,7 +324,14 @@ function selectUser(id, name) {
     document.getElementById("selected-user").style.display = "block";
     document.getElementById("selected-user-name").textContent = name;
 }
-
+async function getUserName(userId) {
+    try {
+        const user = await apiRequest(`/users/${userId}/profile`, "GET", null, true);
+        return user.full_name;
+    } catch {
+        return `User #${userId}`;
+    }
+}
 async function loadThread(userId) {
     currentThreadUserId = userId;
 
@@ -322,7 +341,7 @@ async function loadThread(userId) {
         const messages = await apiRequest(`/messages/thread/${userId}`, "GET", null, true);
 
         document.getElementById("chat-area").innerHTML = `
-            <div class="chat-header">Conversation with User #${userId}</div>
+        <div class="chat-header">Conversation with ${await getUserName(userId)}</div>
             <div class="chat-messages" id="chat-messages">
                 ${messages.length === 0 ? '<p style="color: var(--gray-600)">No messages yet. Say hello!</p>' :
                     messages.map(msg => `
@@ -399,7 +418,7 @@ document.addEventListener("click", function(e) {
     }
 });
 
-loadInbox();
+loadInbox();d
     </script>
 </body>
 </html>
