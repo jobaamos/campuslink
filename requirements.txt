@@ -9,5 +9,6 @@ python-dotenv
 python-multipart
 pydantic[email]
 pydantic-settings
-bcrypt==4.0.1emails==0.6
+bcrypt==4.0.1
+emails==0.6
 itsdangerous==2.2.0
