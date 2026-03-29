@@ -70,16 +70,20 @@
     <!-- NAVBAR -->
     <div class="navbar">
         <div class="logo">🔗 CampusLink</div>
-        <nav>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="listings.html">Listings</a>
-            <a href="jobs.html">Jobs</a>
-            <a href="messages.html">Messages</a>
-            <a href="notifications.html">🔔 <span class="notif-count"></span></a>
-            <a href="#" onclick="logout()">Logout</a>
-        </nav>
+        <div class="nav-dropdown">
+            <button class="nav-dots" onclick="toggleMenu()">⋮</button>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="dashboard.html">🏠 Dashboard</a>
+                <a href="listings.html">🛍️ Listings</a>
+                <a href="jobs.html">💼 Jobs</a>
+                <a href="messages.html">💬 Messages</a>
+                <a href="notifications.html">🔔 Notifications <span class="notif-count"></span></a>
+                <a href="profile.html">👤 My Profile</a>
+                <div class="dropdown-divider"></div>
+                <button onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
     </div>
-
     <div class="container">
         <div id="alert-container"></div>
 
@@ -90,6 +94,15 @@
 
     <script src="assets/js/main.js"></script>
     <script>
+        function toggleMenu() {
+    document.getElementById("dropdown-menu").classList.toggle("open");
+}
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".nav-dropdown")) {
+        document.getElementById("dropdown-menu").classList.remove("open");
+    }
+});
         requireAuth();
 
         const params = new URLSearchParams(window.location.search);
