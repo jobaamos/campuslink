@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     MAIL_PASSWORD: str
     MAIL_FROM: str
     BASE_URL: str
+    RESEND_API_KEY: str
 
     class Config:
         env_file = ".env"

@@ -1,8 +1,8 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend
 from itsdangerous import URLSafeTimedSerializer
 from ..config import settings
+
+resend.api_key = settings.RESEND_API_KEY
 
 def generate_verification_token(email: str):
     serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
@@ -50,17 +50,13 @@ def send_verification_email(email: str, token: str):
     </html>
     """
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Verify Your CampusLink Account"
-    msg["From"] = settings.MAIL_FROM
-    msg["To"] = email
-
-    msg.attach(MIMEText(html_content, "html"))
-
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
-            server.sendmail(settings.MAIL_FROM, email, msg.as_string())
+        resend.Emails.send({
+            "from": "CampusLink <onboarding@resend.dev>",
+            "to": email,
+            "subject": "Verify Your CampusLink Account",
+            "html": html_content
+        })
         return True
     except Exception as e:
         print(f"Email error: {e}")
