@@ -5,6 +5,7 @@ from ..models.user import User
 from ..schemas.user import UserCreate, UserLogin, UserResponse, Token
 from ..utils.hashing import hash_password, verify_password
 from ..utils.jwt import create_access_token
+from ..utils.email import generate_verification_token, verify_token, send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -20,17 +21,43 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     if existing_matric:
         raise HTTPException(status_code=400, detail="Matric number already registered")
     
+    # Generate verification token
+    token = generate_verification_token(user.email)
+
     # Create new user
     new_user = User(
         full_name=user.full_name,
         email=user.email,
         matric_number=user.matric_number,
-        password=hash_password(user.password)
+        password=hash_password(user.password),
+        is_verified=False,
+        verification_token=token
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    # Send verification email
+    send_verification_email(user.email, token)
+
     return new_user
+
+@router.get("/verify/{token}")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    email = verify_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification link")
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.is_verified:
+        return {"message": "Email already verified. Please login."}
+    
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+    return {"message": "Email verified successfully! You can now login."}
 
 @router.post("/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
@@ -42,6 +69,10 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     # Check password
     if not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Check if verified
+    if not db_user.is_verified:
+        raise HTTPException(status_code=401, detail="Please verify your email before logging in. Check your inbox for the verification link.")
     
     # Create token
     access_token = create_access_token(data={"sub": db_user.email})

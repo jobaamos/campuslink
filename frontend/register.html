@@ -103,26 +103,26 @@
         redirectIfLoggedIn();
 
         async function register() {
-            const full_name = document.getElementById("full_name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const matric_number = document.getElementById("matric_number").value.trim();
-            const password = document.getElementById("password").value.trim();
+    const full_name = document.getElementById("full_name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const matric_number = document.getElementById("matric_number").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-            if (!full_name || !email || !matric_number || !password) {
-                showAlert("Please fill in all fields", "danger");
-                return;
-            }
+    if (!full_name || !email || !matric_number || !password) {
+        showAlert("Please fill in all fields", "danger");
+        return;
+    }
 
-            try {
-                await apiRequest("/auth/register", "POST", {
-                    full_name, email, matric_number, password
-                });
-                showAlert("Account created successfully! Redirecting to login...", "success");
-                setTimeout(() => { window.location.href = "login.html"; }, 2000);
-            } catch (error) {
-                showAlert(error.message, "danger");
-            }
-        }
+    try {
+        await apiRequest("/auth/register", "POST", {
+            full_name, email, matric_number, password
+        });
+        showAlert("Registration successful! Please check your email inbox for a verification link before logging in.", "success");
+        setTimeout(() => { window.location.href = "login.html"; }, 5000);
+    } catch (error) {
+        showAlert(error.message, "danger");
+    }
+}
     </script>
 </body>
 </html>
