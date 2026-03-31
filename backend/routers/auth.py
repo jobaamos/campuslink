@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     # Check if email already exists
-    existing_email = db.query(User).filter(User.email == user.email).first()
+    existing_email = db.query(User).filter(User.email == user.email.lower()).first()
     if existing_email:
         raise HTTPException(status_code=400, detail="Email already registered")
     
@@ -27,7 +27,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     # Create new user
     new_user = User(
         full_name=user.full_name,
-        email=user.email,
+        email=user.email.lower(),
         matric_number=user.matric_number,
         password=hash_password(user.password),
         is_verified=False,
@@ -62,7 +62,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     # Check if user exists
-    db_user = db.query(User).filter(User.email == user.email).first()
+    db_user = db.query(User).filter(User.email == user.email.lower()).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -80,7 +80,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPassword, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == request.email).first()
+    user = db.query(User).filter(User.email == request.email.lower()).first()
     if not user:
         return {"message": "If this email is registered, a reset link has been sent."}
     
