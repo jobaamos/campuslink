@@ -5,7 +5,7 @@ from ..models.user import User
 from ..schemas.user import UserCreate, UserLogin, UserResponse, Token
 from ..utils.hashing import hash_password, verify_password
 from ..utils.jwt import create_access_token
-from ..utils.email import generate_verification_token, verify_token, send_verification_email
+from ..utils.email import generate_verification_token, verify_token, send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -77,3 +77,32 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     # Create token
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/forgot-password")
+def forgot_password(email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        # Return success even if email not found for security reasons
+        return {"message": "If this email is registered, a reset link has been sent."}
+    
+    token = generate_verification_token(email)
+    user.verification_token = token
+    db.commit()
+
+    send_password_reset_email(email, token)
+    return {"message": "If this email is registered, a reset link has been sent."}
+
+@router.post("/reset-password")
+def reset_password(token: str, new_password: str, db: Session = Depends(get_db)):
+    email = verify_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.password = hash_password(new_password)
+    user.verification_token = None
+    db.commit()
+    return {"message": "Password reset successfully! You can now login."}

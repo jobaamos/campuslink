@@ -61,3 +61,49 @@ def send_verification_email(email: str, token: str):
     except Exception as e:
         print(f"Email error: {e}")
         return False
+
+def send_password_reset_email(email: str, token: str):
+    reset_link = f"{settings.BASE_URL}/reset-password.html?token={token}"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; }}
+            .container {{ max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }}
+            .logo {{ font-size: 24px; font-weight: bold; color: #1a73e8; margin-bottom: 20px; }}
+            .title {{ font-size: 20px; font-weight: bold; color: #343a40; margin-bottom: 10px; }}
+            .text {{ color: #6c757d; line-height: 1.6; margin-bottom: 20px; }}
+            .btn {{ display: inline-block; background-color: #1a73e8; color: #ffffff; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; }}
+            .footer {{ margin-top: 30px; font-size: 12px; color: #6c757d; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="logo">🔗 CampusLink</div>
+            <div class="title">Reset Your Password</div>
+            <p class="text">We received a request to reset the password for your CampusLink account. Click the button below to set a new password.</p>
+            <a href="{reset_link}" class="btn">Reset My Password</a>
+            <p class="text" style="margin-top: 20px;">If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+            <p class="text">This reset link will expire in <strong>1 hour</strong>.</p>
+            <div class="footer">
+                &copy; 2024 CampusLink — Crawford University<br>
+                This is an automated message, please do not reply.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    try:
+        resend.Emails.send({
+            "from": "CampusLink <onboarding@resend.dev>",
+            "to": email,
+            "subject": "Reset Your CampusLink Password",
+            "html": html_content
+        })
+        return True
+    except Exception as e:
+        print(f"Email error: {e}")
+        return False
