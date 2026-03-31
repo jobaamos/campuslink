@@ -117,7 +117,7 @@
         await apiRequest("/auth/register", "POST", {
             full_name, email, matric_number, password
         });
-        showAlert("Registration successful! Please check your email inbox for a verification link before logging in.", "success");
+        showAlert("Registration successful! Please check your email inbox AND spam/junk folder for a verification link before logging in.", "success");
         setTimeout(() => { window.location.href = "login.html"; }, 5000);
     } catch (error) {
         showAlert(error.message, "danger");

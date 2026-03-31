@@ -37,7 +37,7 @@ def send_verification_email(email: str, token: str):
         <div class="container">
             <div class="logo">🔗 CampusLink</div>
             <div class="title">Verify Your Email Address</div>
-            <p class="text">Thank you for registering on CampusLink — the campus digital marketplace for Crawford University students. Please click the button below to verify your email address and activate your account.</p>
+            <p class="text">Thank you for registering on CampusLink - the campus digital marketplace for Crawford University students. Please click the button below to verify your email address and activate your account.</p>
             <a href="{verification_link}" class="btn">Verify My Email</a>
             <p class="text" style="margin-top: 20px;">If you did not create an account on CampusLink, please ignore this email.</p>
             <p class="text">This verification link will expire in <strong>1 hour</strong>.</p>
