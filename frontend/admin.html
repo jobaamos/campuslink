@@ -297,7 +297,7 @@ document.addEventListener("click", function(e) {
                                     <td>${l.title}</td>
                                     <td><span class="badge badge-primary">${l.category}</span></td>
                                     <td>${formatCurrency(l.price)}</td>
-                                    <td>User #${l.owner_id}</td>
+                                    <td>${l.owner_name || "User #" + l.owner_id}</td>
                                     <td>
                                         <button class="btn btn-danger" style="padding: 0.3rem 0.8rem; font-size: 0.8rem" onclick="deleteListing(${l.id})">Delete</button>
                                     </td>
