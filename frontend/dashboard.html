@@ -187,7 +187,7 @@
         <!-- QUICK ACTIONS -->
         <div class="quick-actions">
             <h3>Quick Actions</h3>
-            <div class="actions-grid">
+            <div class="actions-grid" id="actions-grid">
                 <a href="listings.html" class="action-card">
                     <div class="action-icon">🛍️</div>
                     <h4>Browse Listings</h4>
@@ -267,6 +267,20 @@ document.addEventListener("click", function(e) {
                 document.getElementById("profile-name").textContent = user.full_name;
                 document.getElementById("profile-email").textContent = user.email;
                 document.getElementById("profile-role").textContent = user.role.replace("_", " ");
+
+                // Show admin link if admin
+                if (user.role === "admin") {
+                    const actionsGrid = document.getElementById("actions-grid");
+                    if (actionsGrid) {
+                        actionsGrid.innerHTML += `
+                            <a href="admin.html" class="action-card">
+                                <div class="action-icon">⚙️</div>
+                                <h4>Admin Dashboard</h4>
+                                <p>Manage the platform</p>
+                            </a>
+                        `;
+                    }
+                }
 
                 // Analytics
                 const analytics = await apiRequest("/analytics/dashboard", "GET", null, true);
