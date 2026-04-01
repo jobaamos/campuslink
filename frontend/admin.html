@@ -345,7 +345,9 @@ document.addEventListener("click", function(e) {
             if (tab === "listings") loadListings();
         }
 
-        loadAdminDashboard();
+        setTimeout(() => {
+            loadAdminDashboard();
+        }, 500);
     </script>
 </body>
 </html>
