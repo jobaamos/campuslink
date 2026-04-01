@@ -108,7 +108,7 @@ def get_all_payments(
 ):
     return db.query(Payment).all()
 
-@router.get("/jobs")
+@router.get("/all-jobs")
 def get_all_jobs(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_user)

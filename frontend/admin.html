@@ -358,7 +358,7 @@ document.addEventListener("click", function(e) {
 
         async function loadJobs() {
             try {
-                const jobs = await apiRequest("/admin/jobs", "GET", null, true);
+                const jobs = await apiRequest("/admin/all-jobs", "GET", null, true);
                 document.getElementById("jobs-table").innerHTML = `
                     <table>
                         <thead>
@@ -405,9 +405,7 @@ document.addEventListener("click", function(e) {
             }
         }
 
-        setTimeout(() => {
-            loadAdminDashboard();
-        }, 500);
+        loadAdminDashboard();
     </script>
 </body>
 </html>
