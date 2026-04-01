@@ -70,7 +70,14 @@ def get_all_listings(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_user)
 ):
-    return db.query(Listing).all()
+    listings = db.query(Listing).all()
+    for listing in listings:
+        owner = db.query(User).filter(User.id == listing.owner_id).first()
+        if owner:
+            listing.owner_name = owner.full_name
+            listing.owner_role = owner.role
+            listing.owner_phone = owner.phone_number
+    return listings
 
 @router.delete("/listings/{listing_id}")
 def delete_listing(
