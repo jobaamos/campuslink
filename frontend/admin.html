@@ -212,19 +212,23 @@ document.addEventListener("click", function(e) {
         requireAuth();
 
         async function loadAdminDashboard() {
-            try {
-                const overview = await apiRequest("/admin/overview", "GET", null, true);
+    try {
+        const overview = await apiRequest("/admin/overview", "GET", null, true);
 
-                document.getElementById("total-revenue").textContent = formatCurrency(overview.total_revenue);
-                document.getElementById("total-users").textContent = overview.total_users;
-                document.getElementById("total-listings").textContent = overview.total_listings;
-                document.getElementById("total-jobs").textContent = overview.total_jobs;
+        if (document.getElementById("total-revenue")) 
+            document.getElementById("total-revenue").textContent = formatCurrency(overview.total_revenue);
+        if (document.getElementById("total-users")) 
+            document.getElementById("total-users").textContent = overview.total_users;
+        if (document.getElementById("total-listings")) 
+            document.getElementById("total-listings").textContent = overview.total_listings;
+        if (document.getElementById("total-jobs")) 
+            document.getElementById("total-jobs").textContent = overview.total_jobs;
 
-                loadUsers();
-            } catch (error) {
-                document.getElementById("alert-container").innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-            }
-        }
+        loadUsers();
+    } catch (error) {
+        document.getElementById("alert-container").innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    }
+}
 
         async function loadUsers() {
             try {
@@ -261,7 +265,8 @@ document.addEventListener("click", function(e) {
                     </table>
                 `;
             } catch (error) {
-                document.getElementById("users-table").innerHTML = `<p style="color:red">${error.message}</p>`;
+                console.error("Users load error:", error);
+                document.getElementById("users-table").innerHTML = `<p style="color:red">Error loading users: ${error.message}</p>`;
             }
         }
 
