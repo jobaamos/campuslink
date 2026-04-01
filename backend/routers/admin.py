@@ -65,19 +65,30 @@ def delete_user(
     db.commit()
     return {"message": "User deleted successfully"}
 
-@router.get("/listings", response_model=List[ListingResponse])
+@router.get("/listings")
 def get_all_listings(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_user)
 ):
     listings = db.query(Listing).all()
+    result = []
     for listing in listings:
         owner = db.query(User).filter(User.id == listing.owner_id).first()
-        if owner:
-            listing.owner_name = owner.full_name
-            listing.owner_role = owner.role
-            listing.owner_phone = owner.phone_number
-    return listings
+        result.append({
+            "id": listing.id,
+            "title": listing.title,
+            "description": listing.description,
+            "price": listing.price,
+            "category": listing.category,
+            "listing_type": listing.listing_type,
+            "is_available": listing.is_available,
+            "owner_id": listing.owner_id,
+            "owner_name": owner.full_name if owner else None,
+            "owner_role": owner.role if owner else None,
+            "owner_phone": owner.phone_number if owner else None,
+            "created_at": str(listing.created_at)
+        })
+    return result
 
 @router.delete("/listings/{listing_id}")
 def delete_listing(
