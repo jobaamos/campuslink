@@ -184,6 +184,7 @@
             <div class="tabs">
                 <div class="tab active" id="tab-btn-users" onclick="switchTab('users')">👥 Users</div>
                 <div class="tab" id="tab-btn-listings" onclick="switchTab('listings')">🛍️ Listings</div>
+                <div class="tab" id="tab-btn-jobs" onclick="switchTab('jobs')">💼 Jobs</div>
             </div>
 
             <div id="tab-users" class="tab-content active">
@@ -192,6 +193,10 @@
 
             <div id="tab-listings" class="tab-content">
                 <div id="listings-table">Loading listings...</div>
+            </div>
+
+            <div id="tab-jobs" class="tab-content">
+                <div id="jobs-table">Loading jobs...</div>
             </div>
 
         </div>
@@ -348,6 +353,56 @@ document.addEventListener("click", function(e) {
             document.getElementById(`tab-${tab}`).classList.add("active");
 
             if (tab === "listings") loadListings();
+            if (tab === "jobs") loadJobs();
+        }
+
+        async function loadJobs() {
+            try {
+                const jobs = await apiRequest("/admin/jobs", "GET", null, true);
+                document.getElementById("jobs-table").innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Budget</th>
+                                <th>Owner</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${jobs.map(j => `
+                                <tr>
+                                    <td>${j.id}</td>
+                                    <td>${j.title}</td>
+                                    <td><span class="badge badge-primary">${j.category}</span></td>
+                                    <td>${j.budget}</td>
+                                    <td>${j.owner_name || "User #" + j.owner_id}</td>
+                                    <td><span class="badge ${j.is_open ? "badge-success" : "badge-warning"}">${j.is_open ? "Open" : "Closed"}</span></td>
+                                    <td>
+                                        <button class="btn btn-danger" style="padding: 0.3rem 0.8rem; font-size: 0.8rem" onclick="deleteJob(${j.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById("jobs-table").innerHTML = `<p style="color:red">${error.message}</p>`;
+            }
+        }
+
+        async function deleteJob(jobId) {
+            if (!confirm("Are you sure you want to delete this job?")) return;
+            try {
+                await apiRequest(`/jobs/${jobId}`, "DELETE", null, true);
+                alert("Job deleted successfully!");
+                loadJobs();
+            } catch (error) {
+                alert(error.message);
+            }
         }
 
         setTimeout(() => {

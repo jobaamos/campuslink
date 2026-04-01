@@ -107,3 +107,25 @@ def get_all_payments(
     current_user: User = Depends(get_admin_user)
 ):
     return db.query(Payment).all()
+
+@router.get("/jobs")
+def get_all_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_user)
+):
+    from ..models.job import Job
+    jobs = db.query(Job).all()
+    result = []
+    for job in jobs:
+        owner = db.query(User).filter(User.id == job.owner_id).first()
+        result.append({
+            "id": job.id,
+            "title": job.title,
+            "category": job.category,
+            "budget": job.budget,
+            "owner_id": job.owner_id,
+            "owner_name": owner.full_name if owner else None,
+            "is_open": job.is_open,
+            "created_at": str(job.created_at)
+        })
+    return result
