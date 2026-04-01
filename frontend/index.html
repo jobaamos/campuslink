@@ -185,6 +185,31 @@
             padding: 1.5rem;
             font-size: 0.9rem;
         }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.8rem;
+            }
+
+            .navbar nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .navbar nav a {
+                margin-left: 0;
+                font-size: 0.85rem;
+            }
+
+            .nav-cta {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
