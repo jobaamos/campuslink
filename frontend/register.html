@@ -87,7 +87,23 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" placeholder="Create a password">
+                <div style="position: relative">
+                    <input type="password" id="password" placeholder="Create a password" style="padding-right: 3rem">
+                    <button type="button" onclick="togglePassword('password', 'eye1')" 
+                        style="position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem">
+                        <span id="eye1">👁️</span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div style="position: relative">
+                    <input type="password" id="confirm_password" placeholder="Retype your password" style="padding-right: 3rem">
+                    <button type="button" onclick="togglePassword('confirm_password', 'eye2')" 
+                        style="position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem">
+                        <span id="eye2">👁️</span>
+                    </button>
+                </div>
             </div>
 
             <button class="btn btn-primary" onclick="register()">Create Account</button>
@@ -100,6 +116,17 @@
 
     <script src="assets/js/main.js"></script>
     <script>
+        function togglePassword(fieldId, eyeId) {
+            const field = document.getElementById(fieldId);
+            const eye = document.getElementById(eyeId);
+            if (field.type === "password") {
+                field.type = "text";
+                eye.textContent = "🙈";
+            } else {
+                field.type = "password";
+                eye.textContent = "👁️";
+            }
+        }
         redirectIfLoggedIn();
 
         async function register() {
@@ -107,9 +134,20 @@
     const email = document.getElementById("email").value.trim();
     const matric_number = document.getElementById("matric_number").value.trim();
     const password = document.getElementById("password").value.trim();
+    const confirm_password = document.getElementById("confirm_password").value.trim();
 
-    if (!full_name || !email || !matric_number || !password) {
+    if (!full_name || !email || !matric_number || !password || !confirm_password) {
         showAlert("Please fill in all fields", "danger");
+        return;
+    }
+
+    if (password !== confirm_password) {
+        showAlert("Passwords do not match!", "danger");
+        return;
+    }
+
+    if (password.length < 6) {
+        showAlert("Password must be at least 6 characters", "danger");
         return;
     }
 
