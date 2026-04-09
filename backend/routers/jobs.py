@@ -123,7 +123,7 @@ def apply_for_job(
 
     return new_application
 
-@router.get("/{job_id}/applications", response_model=List[JobApplicationResponse])
+@router.get("/{job_id}/applications")
 def get_job_applications(
     job_id: int,
     db: Session = Depends(get_db),
@@ -135,4 +135,17 @@ def get_job_applications(
     if job.owner_id != current_user.id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to view applications")
     
-    return db.query(JobApplication).filter(JobApplication.job_id == job_id).all()
+    applications = db.query(JobApplication).filter(JobApplication.job_id == job_id).all()
+    result = []
+    for app in applications:
+        applicant = db.query(User).filter(User.id == app.applicant_id).first()
+        result.append({
+            "id": app.id,
+            "cover_letter": app.cover_letter,
+            "status": app.status,
+            "created_at": str(app.created_at),
+            "job_id": app.job_id,
+            "applicant_id": app.applicant_id,
+            "applicant_name": applicant.full_name if applicant else None
+        })
+    return result
