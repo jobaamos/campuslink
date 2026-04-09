@@ -88,7 +88,7 @@ def get_all_listings(
             "owner_phone": owner.phone_number if owner else None,
             "created_at": str(listing.created_at)
         })
-    return result
+    return result 
 
 @router.delete("/listings/{listing_id}")
 def delete_listing(
