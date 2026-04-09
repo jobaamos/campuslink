@@ -322,7 +322,7 @@ async function viewApplications(jobId, jobTitle) {
         document.getElementById("applications-list").innerHTML = applications.map((app, index) => `
             <div style="border-bottom: 1px solid var(--gray-200); padding: 1rem 0">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
-                    <strong>Applicant #${app.applicant_id}</strong>
+                    <strong>${app.applicant_name || "Applicant #" + app.applicant_id}</strong>
                     <span class="badge ${app.status === 'pending' ? 'badge-warning' : app.status === 'accepted' ? 'badge-success' : 'badge-primary'}">${app.status}</span>
                 </div>
                 <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.5rem"><strong>Cover Letter:</strong></p>

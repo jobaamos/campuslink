@@ -39,6 +39,7 @@ class JobApplicationResponse(BaseModel):
     created_at: datetime
     job_id: int
     applicant_id: int
+    applicant_name: Optional[str] = None
 
     class Config:
         from_attributes = True
