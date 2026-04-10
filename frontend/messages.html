@@ -353,9 +353,10 @@ async function loadThread(userId) {
 
     try {
         const messages = await apiRequest(`/messages/thread/${userId}`, "GET", null, true);
+        const userName = await getUserName(userId);
 
         document.getElementById("chat-area").innerHTML = `
-        <div class="chat-header">Conversation with ${await getUserName(userId)}</div>
+        <div class="chat-header">Conversation with ${userName}</div>
             <div class="chat-messages" id="chat-messages">
                 ${messages.length === 0 ? '<p style="color: var(--gray-600)">No messages yet. Say hello!</p>' :
                     messages.map(msg => `
