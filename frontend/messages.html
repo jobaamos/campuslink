@@ -336,6 +336,12 @@ async function loadThread(userId) {
         const messages = await apiRequest(`/messages/thread/${userId}`, "GET", null, true);
         const userName = await getUserName(userId);
 
+        // Mark all unread messages from this user as read
+        const unreadMessages = messages.filter(msg => msg.sender_id === userId && !msg.is_read);
+        await Promise.all(unreadMessages.map(msg => 
+            apiRequest(`/messages/${msg.id}/read`, "PUT", null, true).catch(() => {})
+        ));
+
         document.getElementById("chat-area").innerHTML = `
         <div class="chat-header">Conversation with ${userName}</div>
             <div class="chat-messages" id="chat-messages">
