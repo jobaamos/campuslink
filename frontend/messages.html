@@ -410,16 +410,17 @@ async function sendNewMessage() {
     }
 
     try {
-        await apiRequest("/messages/", "POST", { receiver_id: selectedReceiverId, content }, true);
+        const receiverId = selectedReceiverId;
+        await apiRequest("/messages/", "POST", { receiver_id: receiverId, content }, true);
         showAlert("Message sent!", "success");
         document.getElementById("new-message").value = "";
         document.getElementById("user-search").value = "";
         document.getElementById("selected-user").style.display = "none";
         selectedReceiverId = null;
         loadInbox();
-        loadThread(selectedReceiverId);
+        loadThread(receiverId);
     } catch (error) {
-        showAlert(error.message, "danger");
+        showAlert(typeof error.message === 'string' ? error.message : "Failed to send message", "danger");
     }
 }
 
