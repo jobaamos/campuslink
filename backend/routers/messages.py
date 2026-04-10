@@ -80,3 +80,32 @@ def mark_as_read(
     db.commit()
     db.refresh(message)
     return message
+
+@router.get("/conversations")
+def get_conversations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Get all messages where user is sender or receiver
+    from sqlalchemy import or_
+    messages = db.query(Message).filter(
+        or_(
+            Message.sender_id == current_user.id,
+            Message.receiver_id == current_user.id
+        )
+    ).order_by(Message.created_at.desc()).all()
+
+    # Group by conversation partner
+    conversations = {}
+    for msg in messages:
+        partner_id = msg.receiver_id if msg.sender_id == current_user.id else msg.sender_id
+        if partner_id not in conversations:
+            partner = db.query(User).filter(User.id == partner_id).first()
+            conversations[partner_id] = {
+                "partner_id": partner_id,
+                "partner_name": partner.full_name if partner else f"User #{partner_id}",
+                "last_message": msg.content,
+                "is_read": msg.is_read,
+                "created_at": str(msg.created_at)
+            }
+    return list(conversations.values())
