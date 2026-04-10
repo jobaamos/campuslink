@@ -172,16 +172,15 @@ document.addEventListener("click", function(e) {
                             <h3 style="margin-bottom: 1rem">Interested?</h3>
                             ${user && user.id !== listing.owner_id ? `
                                 
-                                ${listing.owner_phone ? `
+                                <button class="btn btn-outline" style="width:100%; margin-bottom: 0.8rem" onclick="messageOwner(${listing.owner_id})">
+    💬 Message Seller on App
+</button>
+${listing.owner_phone ? `
     <a href="https://wa.me/${listing.owner_phone}?text=Hi, I am interested in your listing: ${encodeURIComponent(listing.title)}" 
         target="_blank" class="btn btn-success" style="width:100%">
         💬 Message Seller on WhatsApp
     </a>
-` : `
-    <button class="btn btn-outline" style="width:100%" onclick="messageOwner(${listing.owner_id})">
-        💬 Message Seller
-    </button>
-`}
+` : ""}
                             ` : '<p style="color: var(--gray-600)">This is your listing.</p>'}
                         </div>
 
