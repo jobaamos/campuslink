@@ -391,9 +391,10 @@ async function sendMessage() {
             content
         }, true);
         document.getElementById("chat-message-input").value = "";
-        loadThread(currentThreadUserId);
+        await loadThread(currentThreadUserId);
     } catch (error) {
-        showAlert(error.message, "danger");
+        console.error("Send message error:", error);
+        showAlert(typeof error.message === 'string' ? error.message : "Failed to send message", "danger");
     }
 }
 
