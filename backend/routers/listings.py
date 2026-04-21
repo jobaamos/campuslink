@@ -11,6 +11,7 @@ import httpx
 import os
 from ..config import settings
 
+router = APIRouter(prefix="/listings", tags=["Listings"])
 @router.post("/upload-image")
 async def upload_image(
     file: UploadFile = File(...),
@@ -50,7 +51,7 @@ async def upload_image(
     # Return public URL
     public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/listing-images/{filename}"
     return {"image_url": public_url}
-router = APIRouter(prefix="/listings", tags=["Listings"])
+
 
 @router.post("/", response_model=ListingResponse)
 def create_listing(
