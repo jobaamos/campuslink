@@ -10,9 +10,10 @@ class Listing(Base):
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
     price = Column(Float, nullable=False)
-    category = Column(String, nullable=False)  # product or service
-    listing_type = Column(String, nullable=False)  # e.g. tutoring, design, food, electronics
+    category = Column(String, nullable=False)
+    listing_type = Column(String, nullable=False)
     is_available = Column(Boolean, default=True)
+    image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

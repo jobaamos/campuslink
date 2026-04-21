@@ -181,26 +181,37 @@ document.addEventListener("click", function(e) {
             }
 
             grid.innerHTML = listings.map(listing => `
-    <div class="listing-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
-            <h3 style="margin-bottom: 0">${listing.title}</h3>
-            ${listing.owner_role === "verified_seller" ? '<span class="badge badge-success">✅ Verified</span>' : ""}
-        </div>
-        <p>${listing.description.substring(0, 100)}${listing.description.length > 100 ? "..." : ""}</p>
-        <div class="listing-meta">
-            <span class="listing-price">${formatCurrency(listing.price)}</span>
-            <span class="badge badge-primary">${listing.category}</span>
-        </div>
-        <div class="listing-footer">
-            <span class="badge badge-success">${listing.listing_type}</span>
-            <button class="btn btn-primary" onclick="viewListing(${listing.id})">View</button>
-        </div>
-        <div style="margin-top: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">
-            By ${listing.owner_name || "Unknown"}
-        </div>
-    </div>
-`).join("");
-        }
+                <div class="listing-card">
+                    ${listing.image_url ? `
+                        <div style="width:100%; height:160px; overflow:hidden; border-radius: 8px; margin-bottom: 1rem;">
+                            <img src="${listing.image_url}" alt="${listing.title}" 
+                                style="width:100%; height:100%; object-fit:cover; transition: transform 0.3s;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                    ` : `
+                        <div style="width:100%; height:160px; background: var(--gray-100); border-radius: 8px; margin-bottom: 1rem; display:flex; align-items:center; justify-content:center; font-size:2.5rem;">
+                            🛍️
+                        </div>
+                    `}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
+                        <h3 style="margin-bottom: 0">${listing.title}</h3>
+                        ${listing.owner_role === "verified_seller" ? '<span class="badge badge-success">✅ Verified</span>' : ""}
+                    </div>
+                    <p>${listing.description.substring(0, 100)}${listing.description.length > 100 ? "..." : ""}</p>
+                    <div class="listing-meta">
+                        <span class="listing-price">${formatCurrency(listing.price)}</span>
+                        <span class="badge badge-primary">${listing.category}</span>
+                    </div>
+                    <div class="listing-footer">
+                        <span class="badge badge-success">${listing.listing_type}</span>
+                        <button class="btn btn-primary" onclick="viewListing(${listing.id})">View</button>
+                    </div>
+                    <div style="margin-top: 0.7rem; font-size: 0.85rem; color: var(--gray-600)">
+                        By ${listing.owner_name || "Unknown"}
+                    </div>
+                </div>
+            `).join("");
 
         function filterListings() {
             const search = document.getElementById("search").value.toLowerCase();

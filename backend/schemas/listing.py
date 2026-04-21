@@ -8,6 +8,7 @@ class ListingCreate(BaseModel):
     price: float
     category: str
     listing_type: str
+    image_url: Optional[str] = None
 
 class ListingUpdate(BaseModel):
     title: Optional[str] = None
@@ -16,6 +17,7 @@ class ListingUpdate(BaseModel):
     category: Optional[str] = None
     listing_type: Optional[str] = None
     is_available: Optional[bool] = None
+    image_url: Optional[str] = None
 
 class ListingResponse(BaseModel):
     id: int
@@ -25,6 +27,7 @@ class ListingResponse(BaseModel):
     category: str
     listing_type: str
     is_available: bool
+    image_url: Optional[str] = None
     created_at: datetime
     owner_id: int
     owner_name: Optional[str] = None

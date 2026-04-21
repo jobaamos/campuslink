@@ -6,7 +6,50 @@ from ..models.listing import Listing
 from ..models.user import User
 from ..schemas.listing import ListingCreate, ListingUpdate, ListingResponse
 from ..utils.dependencies import get_current_user
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import httpx
+import os
+from ..config import settings
 
+@router.post("/upload-image")
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Validate file type
+    if file.content_type not in ["image/jpeg", "image/png", "image/webp", "image/jpg"]:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG and WebP images are allowed")
+    
+    # Validate file size (max 5MB)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image must be less than 5MB")
+    
+    # Generate unique filename
+    import uuid
+    ext = file.filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    
+    # Upload to Supabase Storage
+    url = f"{settings.SUPABASE_URL}/storage/v1/object/listing-images/{filename}"
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url,
+            content=contents,
+            headers={
+                "Authorization": f"Bearer {settings.SUPABASE_KEY}",
+                "Content-Type": file.content_type
+            }
+        )
+    
+    if response.status_code not in [200, 201]:
+        raise HTTPException(status_code=500, detail="Failed to upload image")
+    
+    # Return public URL
+    public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/listing-images/{filename}"
+    return {"image_url": public_url}
 router = APIRouter(prefix="/listings", tags=["Listings"])
 
 @router.post("/", response_model=ListingResponse)

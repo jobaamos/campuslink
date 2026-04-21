@@ -74,6 +74,17 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label>Listing Image (Optional)</label>
+                    <div id="current-image-container" style="display:none; margin-bottom: 0.8rem">
+                        <img id="current-image" src="" alt="Current listing image" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+                        <small style="color: var(--gray-600)">Current image — upload a new one to replace it</small>
+                    </div>
+                    <input type="file" id="listing-image" accept="image/jpeg,image/png,image/webp" style="padding: 0.5rem;">
+                    <small style="color: var(--gray-600)">Max 5MB. JPEG, PNG or WebP only.</small>
+                </div>
+
                 <div class="form-group">
                     <label>Status</label>
                     <select id="is_available">
@@ -119,6 +130,12 @@ document.addEventListener("click", function(e) {
                 document.getElementById("listing_type").value = listing.listing_type;
                 document.getElementById("is_available").value = listing.is_available.toString();
 
+                // Show current image if exists
+                if (listing.image_url) {
+                    document.getElementById("current-image-container").style.display = "block";
+                    document.getElementById("current-image").src = listing.image_url;
+                }
+
             } catch (error) {
                 showAlert(error.message, "danger");
             }
@@ -131,21 +148,47 @@ document.addEventListener("click", function(e) {
             const category = document.getElementById("category").value;
             const listing_type = document.getElementById("listing_type").value;
             const is_available = document.getElementById("is_available").value === "true";
+            const imageFile = document.getElementById("listing-image").files[0];
 
             if (!title || !description || !price || !category || !listing_type) {
-                showAlert("Please fill in all fields", "danger");
+                showAlert("Please fill in all required fields", "danger");
                 return;
             }
 
             try {
+                let image_url = undefined;
+
+                // Upload new image if provided
+                if (imageFile) {
+                    showAlert("Uploading image...", "success");
+                    const formData = new FormData();
+                    formData.append("file", imageFile);
+
+                    const response = await fetch(`${API_URL}/listings/upload-image`, {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${getToken()}` },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.detail || "Image upload failed");
+                    }
+
+                    const data = await response.json();
+                    image_url = data.image_url;
+                }
+
                 await apiRequest(`/listings/${listingId}`, "PUT", {
                     title,
                     description,
                     price: parseFloat(price),
                     category,
                     listing_type,
-                    is_available
+                    is_available,
+                    ...(image_url && { image_url })
                 }, true);
+
                 showAlert("Listing updated successfully! Redirecting...", "success");
                 setTimeout(() => { window.location.href = "my-listings.html"; }, 2000);
             } catch (error) {
