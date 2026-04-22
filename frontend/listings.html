@@ -17,13 +17,13 @@
             align-items: flex-end;
             flex-wrap: wrap;
         }
-
+ 
         .filters .form-group {
             margin-bottom: 0;
             flex: 1;
             min-width: 150px;
         }
-
+ 
         .listing-card {
             background-color: var(--white);
             border-radius: var(--radius);
@@ -34,49 +34,49 @@
             flex-direction: column;
             justify-content: space-between;
         }
-
+ 
         .listing-card:hover {
             transform: translateY(-3px);
         }
-
+ 
         .listing-card h3 {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: var(--gray-800);
         }
-
+ 
         .listing-card p {
             color: var(--gray-600);
             font-size: 0.9rem;
             margin-bottom: 1rem;
             flex-grow: 1;
         }
-
+ 
         .listing-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-
+ 
         .listing-price {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--primary);
         }
-
+ 
         .listing-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
+ 
         .empty-state {
             text-align: center;
             padding: 4rem;
             color: var(--gray-600);
         }
-
+ 
         .empty-state .empty-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
@@ -84,7 +84,7 @@
     </style>
 </head>
 <body>
-
+ 
     <!-- NAVBAR -->
     <div class="navbar">
         <div class="logo"><img src="assets/campuslink_logo.png" alt="CampusLink"> CampusLink</div>
@@ -102,13 +102,13 @@
             </div>
         </div>
     </div>
-
+ 
     <div class="container">
         <div class="page-header">
             <h1>Browse Listings</h1>
             <p>Discover products and services from students on campus</p>
         </div>
-
+ 
         <!-- FILTERS -->
         <div class="filters">
             <div class="form-group">
@@ -137,28 +137,29 @@
             </div>
             <button class="btn btn-primary" onclick="filterListings()">Filter</button>
         </div>
-
+ 
         <div id="alert-container"></div>
-
+ 
         <!-- LISTINGS GRID -->
         <div class="grid-3" id="listings-grid">
             <p>Loading listings...</p>
         </div>
     </div>
-
+ 
     <script src="assets/js/main.js"></script>
     <script>
         function toggleMenu() {
-    document.getElementById("dropdown-menu").classList.toggle("open");
-}
-
-document.addEventListener("click", function(e) {
-    if (!e.target.closest(".nav-dropdown")) {
-        document.getElementById("dropdown-menu").classList.remove("open");
-    }
-});
+            document.getElementById("dropdown-menu").classList.toggle("open");
+        }
+ 
+        document.addEventListener("click", function(e) {
+            if (!e.target.closest(".nav-dropdown")) {
+                document.getElementById("dropdown-menu").classList.remove("open");
+            }
+        });
+ 
         let allListings = [];
-
+ 
         async function loadListings() {
             try {
                 allListings = await apiRequest("/listings/", "GET");
@@ -167,7 +168,7 @@ document.addEventListener("click", function(e) {
                 showAlert(error.message, "danger");
             }
         }
-
+ 
         function renderListings(listings) {
             const grid = document.getElementById("listings-grid");
             if (listings.length === 0) {
@@ -179,7 +180,7 @@ document.addEventListener("click", function(e) {
                     </div>`;
                 return;
             }
-
+ 
             grid.innerHTML = listings.map(listing => `
                 <div class="listing-card">
                     ${listing.image_url ? `
@@ -212,12 +213,13 @@ document.addEventListener("click", function(e) {
                     </div>
                 </div>
             `).join("");
-
+        } // ← closing brace for renderListings
+ 
         function filterListings() {
             const search = document.getElementById("search").value.toLowerCase();
             const category = document.getElementById("category-filter").value;
             const type = document.getElementById("type-filter").value;
-
+ 
             const filtered = allListings.filter(listing => {
                 const matchSearch = listing.title.toLowerCase().includes(search) ||
                     listing.description.toLowerCase().includes(search);
@@ -225,15 +227,16 @@ document.addEventListener("click", function(e) {
                 const matchType = !type || listing.listing_type === type;
                 return matchSearch && matchCategory && matchType;
             });
-
+ 
             renderListings(filtered);
         }
-
+ 
         function viewListing(id) {
             window.location.href = `listing-detail.html?id=${id}`;
         }
-
+ 
         loadListings();
     </script>
 </body>
 </html>
+ 
