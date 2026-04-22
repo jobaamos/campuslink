@@ -184,9 +184,9 @@
             grid.innerHTML = listings.map(listing => `
                 <div class="listing-card">
                     ${listing.image_url ? `
-                        <div style="width:100%; height:160px; overflow:hidden; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="width:100%; border-radius: 8px; margin-bottom: 1rem; overflow:hidden;">
                             <img src="${listing.image_url}" alt="${listing.title}" 
-                                style="width:100%; height:100%; object-fit:cover; transition: transform 0.3s;"
+                                style="width:100%; height:auto; display:block; transition: transform 0.3s;"
                                 onmouseover="this.style.transform='scale(1.05)'"
                                 onmouseout="this.style.transform='scale(1)'">
                         </div>
