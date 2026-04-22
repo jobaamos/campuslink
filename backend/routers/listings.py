@@ -45,7 +45,18 @@ async def upload_image(
             }
         )
     
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url,
+            content=contents,
+            headers={
+                "Authorization": f"Bearer {settings.SUPABASE_KEY}",
+                "Content-Type": file.content_type
+            }
+        )
+
     if response.status_code not in [200, 201]:
+        print(f"Supabase error: {response.status_code} - {response.text}")  # ← ADD THIS
         raise HTTPException(status_code=500, detail="Failed to upload image")
     
     # Return public URL
