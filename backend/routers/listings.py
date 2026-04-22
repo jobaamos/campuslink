@@ -33,7 +33,7 @@ async def upload_image(
     filename = f"{uuid.uuid4()}.{ext}"
     
     # Upload to Supabase Storage
-    url = f"{settings.SUPABASE_URL}/storage/v1/object/listing-images/{filename}"
+    url = f"{settings.SUPABASE_URL}/storage/v1/object/Listing-images/{filename}"
     
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -52,7 +52,7 @@ async def upload_image(
     
     
     # Return public URL
-    public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/listing-images/{filename}"
+    public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/Listing-images/{filename}"
     return {"image_url": public_url}
 
 
